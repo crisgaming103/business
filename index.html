@@ -1,0 +1,575 @@
+<!-- FULL SOURCE CODE -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>Mod Tool Form</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: auto;
+      overflow-y: auto;
+      font-family: 'Poppins', sans-serif;
+      background: url('https://i.ibb.co/Y4ywWKy8/IMG-0493.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+
+    .logo {
+      display: block;
+      margin: 15px auto 5px;
+      width: 60%;
+      max-width: 180px;
+    }
+
+    .greeting {
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      text-transform: uppercase;
+      font-size: 35px;
+      color: black;
+      font-weight: 700;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .scroll-message {
+      text-align: center;
+      margin: 25px 0 10px;
+      font-size: 14px;
+      color: black;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      margin: 10px auto;
+      padding: 15px;
+      border-radius: 12px;
+      max-width: 360px;
+      text-align: center;
+      border: 2px solid red;
+    }
+
+    .title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 25px;
+      color: black;
+      margin-bottom: 10px;
+    }
+
+    .popup-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #ddd;
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      cursor: pointer;
+    }
+
+    .popup {
+      display: none;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(14px);
+      padding: 20px;
+      border-radius: 12px;
+      color: #000;
+      text-align: left;
+      margin-top: 10px;
+    }
+
+.section-logo {
+  display: block;
+  margin: 20px auto;      /* centers the image horizontally */
+  width: 100px;           /* set desired width */
+  height: auto;           /* maintain aspect ratio */
+}
+    .popup label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .extra-field {
+      display: none;
+      margin-bottom: 10px;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 16px;
+      margin: 12px 0;
+    }
+
+    .avail-button {
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body onload="updateGreeting()">
+  <img class="logo" src="https://i.postimg.cc/4NGNwJ94/Picsart-25-06-24-10-03-39-957.png" alt="Logo">
+  <div style="text-align: center;">
+    <div class="greeting" id="greeting">Loading greeting...</div>
+  </div>
+  <div class="scroll-message">Please Scroll Down To See Other Services/Offer</div>
+  
+  <!-- Between section boxes -->
+<img src="https://i.ibb.co/mCG1VsRh/Picsart-25-07-23-10-56-47-121.png" alt="Logo" class="section-logo">
+
+  <!-- GameGuardian Tool -->
+  <div class="container">
+    <div class="title">GameGuardian Tool</div>
+    <button class="popup-button" onclick="togglePopup('gg')">Click Me To Open Services</button>
+    <div class="popup" id="popup-gg">
+      <form class="toolForm" data-tool="GameGuardian Tool">
+        <label><input type="checkbox" class="price" value="10" data-target="logoFields-gg"> Change Logo (₱10)</label>
+        <div class="extra-field" id="logoFields-gg"><input type="file" name="logoUpload"></div>
+
+        <label><input type="checkbox" class="price" value="10" data-target="bgFields-gg"> Change Background (₱10)</label>
+        <div class="extra-field" id="bgFields-gg"><input type="file" name="bgUpload"></div>
+
+        <label><input type="checkbox" class="price" value="10" data-target="pkgFields-gg"> Change Package Name (₱10)</label>
+        <div class="extra-field" id="pkgFields-gg"><input type="text" name="packageName"></div>
+
+        <label><input type="checkbox" class="price" value="10" data-target="nameFields-gg"> Change Name (₱10)</label>
+        <div class="extra-field" id="nameFields-gg"><input type="text" name="newName"></div>
+
+        <label>Input Name Inside (₱10)</label>
+        <input type="text" name="insideName">
+
+        <label>Proof of Payment</label>
+        <input type="file" name="proofUpload" required>
+
+        <div class="total">Total: ₱<span class="totalPrice">0</span></div>
+        <input type="text" name="username" placeholder="Username" required>
+        <select name="payment" required>
+          <option value="">Select payment</option>
+          <option>Gcash</option><option>Paypal</option><option>Load (TNT)</option>
+        </select>
+        <button type="submit" class="avail-button">Avail</button>
+      </form>
+    </div>
+  </div>
+  
+  <img src="https://i.ibb.co/8nCprZwM/Picsart-25-07-23-10-57-08-700.png" alt="Logo" class="section-logo">
+
+
+  <!-- Nuker Tool -->
+  <div class="container">
+    <div class="title">Nuker Tool</div>
+    <button class="popup-button" onclick="togglePopup('nuker')">Click Me To Open Services</button>
+    <div class="popup" id="popup-nuker">
+      <form class="toolForm" data-tool="Nuker Tool">
+        <label><input type="checkbox" class="price" value="40"> Nuker Features (₱40)</label>
+        <ul style="font-size: 14px;">
+          <li>50 IGM</li>    <li>50M Money</li><li>Unlock All Cars</li><li>W16 Engine</li><li>Smoke</li>
+          <li>Headlights</li><li>Siren</li><li>Wheels</li><li>Max Money</li>
+        </ul>
+        <label><input type="checkbox" class="price" value="10" data-target="logoFields-nuker"> Change Logo (₱10)</label>
+        <div class="extra-field" id="logoFields-nuker"><input type="file" name="logoUpload"></div>
+
+        <label><input type="checkbox" class="price" value="10" data-target="bgFields-nuker"> Change Background (₱10)</label>
+        <div class="extra-field" id="bgFields-nuker"><input type="file" name="bgUpload"></div>
+
+        <label><input type="checkbox" class="price" value="10" data-target="nameFields-nuker"> Change Name (₱10)</label>
+        <div class="extra-field" id="nameFields-nuker"><input type="text" name="newName"></div>
+
+        <label>Proof of Payment</label>
+        <input type="file" name="proofUpload" required>
+
+        <div class="total">Total: ₱<span class="totalPrice">0</span></div>
+        <input type="text" name="username" placeholder="Username" required>
+        <select name="payment" required>
+          <option value="">Select payment</option>
+          <option>Gcash</option><option>Paypal</option><option>Load (TNT)</option>
+        </select>
+        <button type="submit" class="avail-button">Avail</button>
+      </form>
+    </div>
+  </div>
+  
+    <!-- Between section boxes -->
+<img src="https://i.postimg.cc/cLxRf153/Picsart-25-07-23-10-53-59-962.png" alt="Logo" class="section-logo">
+  
+<!-- CPM1 Tool -->
+<div class="container">
+  <div class="title">CPM1 Script Tool</div>
+  <button class="popup-button" onclick="togglePopup('cpm1')">Click Me To Open Services</button>
+  <div class="popup" id="popup-cpm1">
+    <form class="toolForm" data-tool="CPM1 Script Tool">
+      <ul style="font-size: 14px;">
+        <li>50M Money</li>
+        <li>Freeze Money</li>
+        <li>Buy Car Zero</li>
+        <li>Unlimited Coin</li>
+        
+             <!-- ✅ Plain text Coin Amounts under Decrease Coin -->
+        <li style="margin-left: 20px; list-style: circle;">
+          Possible Coin Amounts:
+          <ul style="margin-top: 5px; margin-bottom: 5px;">
+            <li>500,000 Coins</li>
+          </ul>
+        </li>
+
+        <li>Decrease Coin</li>
+
+        <!-- ✅ Plain text Coin Amounts under Decrease Coin -->
+        <li style="margin-left: 20px; list-style: circle;">
+          Possible Coin Amounts:
+          <ul style="margin-top: 5px; margin-bottom: 5px;">
+            <li>10,000 Coins</li>
+            <li>20,000 Coins</li>
+            <li>30,000 Coins</li>
+            <li>40,000 Coins</li>
+            <li>50,000 Coins</li>
+            <li>100,000 Coins</li>
+            <li>500,000 Coins</li>
+          </ul>
+        </li>
+
+        <li>Unlock Premium Car</li>
+        <li>Unlock House3</li>
+        <li>Unlock Police Serin</li>
+        <li>Achievement</li>
+        <li>Unlock Premium Wheel</li>
+        <li>Remove Bumper</li>
+        
+             <!-- ✅ Plain text Coin Amounts under Decrease Coin -->
+        <li style="margin-left: 20px; list-style: circle;">
+          
+          <ul style="margin-top: 5px; margin-bottom: 5px;">
+            <li>Rear Bumper</li>
+            <li>Front Bumper</li>
+          </ul>
+        </li>
+
+        <li>Fake Logo</li>
+        
+             <!-- ✅ Plain text Coin Amounts under Decrease Coin -->
+        <li style="margin-left: 20px; list-style: circle;">
+          Possible Coin Amounts:
+          <ul style="margin-top: 5px; margin-bottom: 5px;">
+            <li>KING RANK</li>
+            <li>TIKTOK RANK</li>
+            <li>YOUTUBE RANK</li>
+            <li>DEV RANK</li>
+          </ul>
+        </li>
+
+        <li>Change ID</li>
+        <li>Prank</li>
+        
+        <!-- ✅ Plain text Coin Amounts under Decrease Coin -->
+        <li style="margin-left: 20px; list-style: circle;">
+          Feature
+          <ul style="margin-top: 5px; margin-bottom: 5px;">
+            <li>Unlock other Car</li>
+            <li>Dance Car</li>
+            <li>Towing Car</li>
+            <li>Teleport</li>
+            <li>Ghost</li>
+          </ul>
+        </li>
+        
+        <li>Room Password</li>
+        <li>Copy Car</li>
+      </ul>
+
+      <label><input type="checkbox" class="price" value="250"> Opensource (₱250)</label>
+      <label><input type="checkbox" class="price" value="200"> Encryptsource (₱200)</label>
+
+      <label>Proof of Payment</label>
+      <input type="file" name="proofUpload" required>
+
+      <div class="total">Total: ₱<span class="totalPrice">0</span></div>
+
+      <input type="text" name="username" placeholder="Username" required>
+      <select name="payment" required>
+        <option value="">Select payment</option>
+        <option>Gcash</option><option>Paypal</option><option>Load (TNT)</option>
+      </select>
+      <button type="submit" class="avail-button">Avail</button>
+    </form>
+  </div>
+</div>
+  
+  <!-- Between section boxes -->
+<img src="https://i.postimg.cc/cLxRf153/Picsart-25-07-23-10-53-59-962.png" alt="Logo" class="section-logo">
+
+  <!-- CPM2 Tool -->
+  <div class="container">
+    <div class="title">CPM2 Script Tool</div>
+    <button class="popup-button" onclick="togglePopup('cpm2')">Click Me To Open Services</button>
+    <div class="popup" id="popup-cpm2">
+      <form class="toolForm" data-tool="CPM2 Script Tool">
+        <ul style="font-size: 14px;">
+             <li>50M Money</li>
+             <li>Freeze Money</li>
+             <li>Achievement</li>
+             <li>Unlock Cars</li>
+          <li>Unlock Houses</li>
+          
+          <!-- ✅ Plain text Coin Amounts under Decrease Coin -->
+        <li style="margin-left: 20px; list-style: circle;">
+          Feature
+          <ul style="margin-top: 5px; margin-bottom: 5px;">
+            <li>4 Houses</li>
+          </ul>
+        </li>
+        
+          <li>Unlock Paint</li>
+          <li>Character</li>
+          <li>Animation</li> 
+          <li>Unlock Serin</li>
+          <li>Unlock Wheels</li>
+          <li>Brakes</li>
+          
+          <!-- ✅ Plain text Coin Amounts under Decrease Coin -->
+        <li style="margin-left: 20px; list-style: circle;">
+          Feature
+          <ul style="margin-top: 5px; margin-bottom: 5px;">
+            <li>Calliper</li>
+          </ul>
+        </li>
+        
+          <li>Garage Bumper</li>
+          
+          <!-- ✅ Plain text Coin Amounts under Decrease Coin -->
+        <li style="margin-left: 20px; list-style: circle;">
+          Feature
+          <ul style="margin-top: 5px; margin-bottom: 5px;">
+            <li>Rear Bumper</li>
+            <li>Front Bumper</li>
+          </ul>
+        </li>
+        
+          <li>Fake Logo</li>
+          
+          <!-- ✅ Plain text Coin Amounts under Decrease Coin -->
+        <li style="margin-left: 20px; list-style: circle;">
+          Feature
+          <ul style="margin-top: 5px; margin-bottom: 5px;">
+            <li>KING RANK</li>
+            <li>TIKTOK RANK</li>
+            <li>YOUTUBE RANK</li>
+            <li>DEV RANK</li>
+          </ul>
+        </li>
+        
+          <li>Convert Coins to Money</li>
+          <li>Copy Car</li>
+        </ul>
+
+        
+                <label><input type="checkbox" class="price" value="250"> Opensource (₱250)</label>
+        <label><input type="checkbox" class="price" value="200"> Encryptsource (₱200)</label>
+
+        <label>Proof of Payment</label>
+        <input type="file" name="proofUpload" required>
+        <div class="total">Total: ₱<span class="totalPrice">0</span></div>
+        <input type="text" name="username" placeholder="Username" required>
+        <select name="payment" required>
+          <option value="">Select payment</option>
+          <option>Gcash</option><option>Paypal</option><option>Load (TNT)</option>
+        </select>
+        <button type="submit" class="avail-button">Avail</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Between section boxes -->
+<img src="https://i.ibb.co/LDRCdgkZ/Picsart-25-07-23-10-58-49-017.png" alt="Logo" class="section-logo">
+
+  <!-- Termux Tool -->
+<div class="container">
+  <div class="title">Termux Tool</div>
+  <button class="popup-button" onclick="togglePopup('termux')">Click Me To Open Services</button>
+  <div class="popup" id="popup-termux">
+    <form class="toolForm" data-tool="Termux Tool">
+      
+      <!-- Feature List -->
+      <div style="font-size: 14px; margin-bottom: 15px; text-align: left;">
+        <strong>🔧 Included Features:</strong>
+        <ul style="padding-left: 20px;">
+          <li>👑 King Rank</li>
+          <li>🛑 Brakes</li>
+          <li>🎨 Paints</li>
+          <li>🛞 Wheels</li>
+          <li>🕺 Animation</li>
+          <li>🧍 Character</li>
+          <li>📦 20 Slot</li>
+          <li>📧 Change Email</li>
+          <li>🔑 Change Password</li>
+          <li>🚗 Serin All Car</li>
+          <li>⚙️ Suspension All Car</li>
+          <li>🎫 Generate VIP Account</li>
+        </ul>
+      </div>
+
+      <!-- Pricing Options -->
+      <label><input type="checkbox" class="price" value="400"> Unlimited Key (₱400)</label>
+      <label><input type="checkbox" class="price" value="200"> 1 Month Access (₱200)</label>
+      <label><input type="checkbox" class="price" value="300"> 2 Months Access (₱300)</label>
+      <label><input type="checkbox" class="price" value="800"> Full Termux Tool (₱800)</label>
+
+      <label>Proof of Payment (Upload)</label>
+      <input type="file" name="proofUpload" accept="image/*" required>
+
+      <div class="total">Total: ₱<span class="totalPrice">0</span></div>
+
+      <input type="text" name="username" placeholder="Username (required)" required>
+      <select name="payment" required>
+        <option value="">Select payment method</option>
+        <option>Gcash</option>
+        <option>Paypal</option>
+        <option>Load (TNT)</option>
+      </select>
+
+      <button type="submit" class="avail-button">Avail</button>
+    </form>
+  </div>
+</div>
+
+<!-- Social Media Section -->
+<div class="container" style="text-align: center; margin-top: 30px;">
+  <div class="title">Stay Connected</div>
+  <p style="margin-top: 10px; font-family: 'Poppins', sans-serif;">
+    For inquiries, support, or updates, follow and message us on our social platforms below:
+  </p>
+  
+  <!-- Social Icons -->
+  <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px;">
+    <a href="https://facebook.com/yourpage" target="_blank" style="color: white;">
+      <i class="fab fa-facebook fa-2x"></i>
+    </a>
+    <a href="https://t.me/yourchannel" target="_blank" style="color: white;">
+      <i class="fab fa-telegram fa-2x"></i>
+    </a>
+    <a href="https://tiktok.com/@yourusername" target="_blank" style="color: white;">
+      <i class="fab fa-tiktok fa-2x"></i>
+    </a>
+    <a href="https://instagram.com/yourprofile" target="_blank" style="color: white;">
+      <i class="fab fa-instagram fa-2x"></i>
+    </a>
+    <a href="https://youtube.com/@yourchannel" target="_blank" style="color: white;">
+      <i class="fab fa-youtube fa-2x"></i>
+    </a>
+  </div>
+
+  <!-- QR Code (replace link) -->
+  <div style="margin-top: 20px;">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://t.me/yourchannel" alt="QR Code" style="border-radius: 12px;">
+    <p style="font-family: 'Poppins', sans-serif; margin-top: 10px;">Scan to contact us via Telegram</p>
+  </div>
+
+  <!-- Contact Button -->
+  <div style="margin-top: 15px;">
+    <a href="https://t.me/yourchannel" target="_blank" style="text-decoration: none;">
+      <button style="padding: 10px 20px; background: #ffffff22; border: 1px solid #fff; color: #fff; border-radius: 8px; font-family: 'Orbitron', sans-serif;">
+        CONTACT NOW
+      </button>
+    </a>
+  </div>
+</div>
+
+  <script>
+    const botUrl = 'https://api.telegram.org/bot7780575013:AAEtUB2Nm-8H6qafaMXceWTCr6G9FuORii0/sendDocument?chat_id=7220548075';
+
+    function updateGreeting() {
+      const h = new Date().getHours();
+      let greeting = 'WELCOME MAAM/SIR THIS IS ARNEL';
+      if (h >= 4 && h < 12) greeting = 'GOOD MORNING MAAM/SIR THIS IS ARNEL AT YOUR SERVICE';
+      else if (h >= 12 && h < 18) greeting = 'GOOD AFTERNOON MAAM/SIR THIS IS ARNEL AT YOUR SERVICE';
+      else greeting = 'GOOD EVENING MAAM/SIR THIS IS ARNEL AT YOUR SERVICE';
+      document.getElementById('greeting').textContent = greeting;
+    }
+
+    function togglePopup(id) {
+      const popup = document.getElementById(`popup-${id}`);
+      popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function sendToTelegram(file, label, caption = '') {
+      const form = new FormData();
+      form.append('document', file);
+      form.append('caption', caption || `📎 ${label}`);
+      return fetch(botUrl, { method: 'POST', body: form });
+    }
+
+    document.querySelectorAll('.toolForm').forEach(form => {
+      const checkboxes = form.querySelectorAll('.price');
+      const totalElement = form.querySelector('.totalPrice');
+
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+          let total = 0;
+          checkboxes.forEach(b => {
+            const field = document.getElementById(b.dataset.target);
+            if (b.checked) {
+              total += parseInt(b.value);
+              if (field) field.style.display = 'block';
+            } else {
+              if (field) field.style.display = 'none';
+            }
+          });
+          totalElement.textContent = total;
+        });
+      });
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        if (!Array.from(checkboxes).some(cb => cb.checked)) {
+          alert('⚠️ Please select at least one option.');
+          return;
+        }
+
+        const fd = new FormData(form);
+        const username = fd.get('username');
+        const payment = fd.get('payment');
+        const tool = form.dataset.tool;
+        const total = form.querySelector('.totalPrice').textContent;
+        const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.parentElement.textContent.trim());
+
+        const caption = `🛠️ *${tool} Request*\n👤 *User:* ${username}\n💳 *Payment:* ${payment}\n\n📦 *Options:*\n- ${selected.join('\n- ')}\n\n💰 *Total:* ₱${total}`;
+        try {
+          const proof = fd.get('proofUpload');
+          if (proof && proof.name) await sendToTelegram(proof, 'Proof of Payment', caption);
+          if (fd.get('logoUpload') && fd.get('logoUpload').name) await sendToTelegram(fd.get('logoUpload'), 'Logo Upload');
+          if (fd.get('bgUpload') && fd.get('bgUpload').name) await sendToTelegram(fd.get('bgUpload'), 'Background Upload');
+          alert('✅ Submitted to Telegram!');
+          form.reset();
+          totalElement.textContent = '0';
+        } catch {
+          alert('❌ Failed to send. Try again.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
