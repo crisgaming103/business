@@ -39,6 +39,11 @@ def is_admin_or_owner(chat_id, user_id):
 user_balance = {}
 user_warnings = {}
 
+def has_balance(user_id):
+    """Check if the user has sufficient balance"""
+    bal = user_balance.get(user_id, 0)
+    return bal > 0 or bal == float('inf')
+
 @bot.message_handler(commands=['give'])
 def give_balance(message):
     if message.from_user.id != OWNER_ID:
@@ -63,20 +68,28 @@ def check_balance(message):
 
 # --- Inline Menu ---
 def send_inline_menu(user_id, username, name):
-    if user_balance.get(user_id, 0) <= 0:
+    if not has_balance(user_id):
+        bot.send_message(user_id, "🚫 You do not have enough balance to access the portal.\n💳 Contact the admin to top up your account.")
         return False
 
     info_text = (
-        "🎮 **Welcome to Cris King Rank Portal** 🎮\n"
+        "👑 **Welcome to the Cris King Rank Portal** 👑\n"
         "━━━━━━━━━━━━━━━━━━━━━━━\n"
-        "🏆 *Elite Access Credentials:*\n\n"
+        "🎮 *Elite Access Credentials:*\n\n"
         f"👤 **Name:** {name}\n"
         f"💬 **Username:** @{username if username else 'N/A'}\n"
         f"🆔 **User ID:** `{user_id}`\n"
         f"🔑 **Access Key:** `{ACCESS_KEY}`\n\n"
-        "⚔️ *This key grants you exclusive access to the King Rank portal.*\n"
-        "🔒 Keep your credentials private.\n\n"
-        "👇 Tap below to enter your **King Rank Control Center.**"
+        "⚔️ *This key grants you verified entry into the exclusive* **King Rank Network**.\n"
+        "🔒 Please keep your access credentials confidential at all times.\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━\n"
+        "🏆 **About King Rank**\n"
+        "🔥 You’ve entered the elite circle of Cris players — the top-tier community of strategy, skill, and dedication.\n"
+        "💠 *Your privileges include:*\n"
+        "• Early access to new tools\n"
+        "• VIP priority support\n"
+        "• Exclusive customization rights\n\n"
+        "🚀 Tap below to open your **King Rank Control Center.**"
     )
 
     target_url = "https://business-ten-lac.vercel.app/"
@@ -86,6 +99,7 @@ def send_inline_menu(user_id, username, name):
     bot.send_message(user_id, info_text, parse_mode="Markdown", reply_markup=markup)
     return True
 
+# --- Menu Command ---
 @bot.message_handler(commands=['menu'])
 def menu(message):
     user = message.from_user
@@ -94,13 +108,24 @@ def menu(message):
     else:
         bot.reply_to(message, "❌ You have no balance or access.")
 
-# --- Info & Utility Commands ---
+# --- Start Command (Protected) ---
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.reply_to(message, f"👋 Hello {message.from_user.first_name}!\nWelcome to **Cris King Rank Bot.**\nUse /help to view available commands.", parse_mode="Markdown")
+    user_id = message.from_user.id
+    if not has_balance(user_id):
+        return bot.reply_to(message, "🚫 **Access Denied**\nYou currently have **no balance** to use this bot.\n💳 Please contact the admin to recharge.", parse_mode="Markdown")
 
+    bot.reply_to(
+        message,
+        f"👋 Hello {message.from_user.first_name}!\nWelcome to **Cris King Rank Bot.**\nUse /menu to access your control panel.",
+        parse_mode="Markdown"
+    )
+
+# --- Help Command ---
 @bot.message_handler(commands=['help'])
 def help_cmd(message):
+    if not has_balance(message.from_user.id) and message.from_user.id != OWNER_ID:
+        return bot.reply_to(message, "🚫 You have no balance to access commands.")
     text = (
         "🤖 **Cris King Rank Bot Commands**\n\n"
         "🛡 **Admin & Owner Tools**\n"
@@ -114,28 +139,41 @@ def help_cmd(message):
     )
     bot.reply_to(message, text, parse_mode="Markdown")
 
+# --- Info & Fun Commands (Protected) ---
+def command_requires_balance(func):
+    def wrapper(message):
+        if not has_balance(message.from_user.id) and message.from_user.id != OWNER_ID:
+            bot.reply_to(message, "🚫 You must have balance to use this command.")
+            return
+        func(message)
+    return wrapper
+
 @bot.message_handler(commands=['id'])
+@command_requires_balance
 def get_id(message):
     bot.reply_to(message, f"🆔 Your ID: `{message.from_user.id}`", parse_mode="Markdown")
 
 @bot.message_handler(commands=['info'])
+@command_requires_balance
 def info(message):
     target = message.reply_to_message.from_user if message.reply_to_message else message.from_user
     username = f"@{target.username}" if target.username else "❌ No username"
     bot.reply_to(message, f"👤 Name: {target.first_name}\n💬 Username: {username}\n🆔 ID: `{target.id}`", parse_mode="Markdown")
 
-# --- Fun Commands ---
 @bot.message_handler(commands=['hug'])
+@command_requires_balance
 def hug(message):
     target = message.reply_to_message.from_user.first_name if message.reply_to_message else "everyone"
     bot.reply_to(message, f"🤗 {message.from_user.first_name} hugged {target}! 💞")
 
 @bot.message_handler(commands=['slap'])
+@command_requires_balance
 def slap(message):
     target = message.reply_to_message.from_user.first_name if message.reply_to_message else "someone"
     bot.reply_to(message, f"👋 {message.from_user.first_name} slapped {target}! 😆")
 
 @bot.message_handler(commands=['quote'])
+@command_requires_balance
 def quote(message):
     quotes = [
         "🌟 Keep pushing forward!",
@@ -146,122 +184,9 @@ def quote(message):
     bot.reply_to(message, random.choice(quotes))
 
 @bot.message_handler(commands=['rules'])
+@command_requires_balance
 def rules(message):
     bot.reply_to(message, "📜 **Group Rules:**\n1️⃣ Be respectful\n2️⃣ No spam\n3️⃣ Follow admin instructions\n4️⃣ Avoid offensive language\n5️⃣ Have fun", parse_mode="Markdown")
-
-# --- Target Extraction ---
-def extract_user(message):
-    if message.reply_to_message:
-        return message.reply_to_message.from_user
-    parts = message.text.split()
-    if len(parts) > 1 and parts[1].isdigit():
-        try:
-            return bot.get_chat_member(message.chat.id, int(parts[1])).user
-        except:
-            return None
-    return None
-
-# --- Moderation Commands ---
-@bot.message_handler(commands=['warn'])
-def warn_user(message):
-    if not is_admin_or_owner(message.chat.id, message.from_user.id):
-        return bot.reply_to(message, "🚫 You lack admin permissions.")
-    target = extract_user(message)
-    if not target:
-        return bot.reply_to(message, "⚠️ Reply to a user or use `/warn <user_id>`", parse_mode="Markdown")
-    user_warnings[target.id] = user_warnings.get(target.id, 0) + 1
-    warns = user_warnings[target.id]
-    bot.reply_to(message, f"⚠️ {target.first_name} has been warned ({warns}/5).")
-    if warns == 3:
-        bot.restrict_chat_member(message.chat.id, target.id, until_date=message.date + 600, permissions=ChatPermissions(can_send_messages=False))
-        bot.send_message(message.chat.id, f"🔇 {target.first_name} muted for 10 minutes (3 warnings).")
-    elif warns >= 5:
-        try:
-            bot.kick_chat_member(message.chat.id, target.id)
-            bot.send_message(message.chat.id, f"⚔️ {target.first_name} was kicked after 5 warnings.")
-        except:
-            bot.send_message(message.chat.id, f"❌ Failed to kick {target.first_name} (missing permissions).")
-
-@bot.message_handler(commands=['unwarn'])
-def unwarn_user(message):
-    if not is_admin_or_owner(message.chat.id, message.from_user.id):
-        return bot.reply_to(message, "🚫 You lack admin permissions.")
-    target = extract_user(message)
-    if not target:
-        return bot.reply_to(message, "⚠️ Reply or use `/unwarn <user_id>`", parse_mode="Markdown")
-    if user_warnings.get(target.id, 0) > 0:
-        user_warnings[target.id] -= 1
-        bot.reply_to(message, f"✅ Removed one warning from {target.first_name}. ({user_warnings[target.id]}/5)")
-    else:
-        bot.reply_to(message, f"ℹ️ {target.first_name} has no warnings.")
-
-@bot.message_handler(commands=['mute'])
-def mute_user(message):
-    if not is_admin_or_owner(message.chat.id, message.from_user.id):
-        return bot.reply_to(message, "🚫 You lack admin permissions.")
-    target = extract_user(message)
-    if not target:
-        return bot.reply_to(message, "⚠️ Reply or use `/mute <user_id> <minutes>`", parse_mode="Markdown")
-    args = message.text.split()
-    mute_time = int(args[2]) if len(args) > 2 and args[2].isdigit() else 5
-    until_date = message.date + (mute_time * 60)
-    try:
-        bot.restrict_chat_member(message.chat.id, target.id, until_date=until_date, permissions=ChatPermissions(can_send_messages=False))
-        bot.reply_to(message, f"🔇 {target.first_name} muted for {mute_time} minutes.")
-    except Exception as e:
-        bot.reply_to(message, f"❌ Failed to mute user.\nError: {e}")
-
-@bot.message_handler(commands=['unmute'])
-def unmute_user(message):
-    if not is_admin_or_owner(message.chat.id, message.from_user.id):
-        return bot.reply_to(message, "🚫 You lack admin permissions.")
-    target = extract_user(message)
-    if not target:
-        return bot.reply_to(message, "⚠️ Reply or use `/unmute <user_id>`", parse_mode="Markdown")
-    try:
-        bot.restrict_chat_member(message.chat.id, target.id, permissions=ChatPermissions(can_send_messages=True))
-        bot.reply_to(message, f"🔊 {target.first_name} has been unmuted.")
-    except Exception as e:
-        bot.reply_to(message, f"❌ Failed to unmute user.\nError: {e}")
-
-@bot.message_handler(commands=['kick'])
-def kick_user(message):
-    if not is_admin_or_owner(message.chat.id, message.from_user.id):
-        return bot.reply_to(message, "🚫 You lack admin permissions.")
-    target = extract_user(message)
-    if not target:
-        return bot.reply_to(message, "⚠️ Reply or use `/kick <user_id>`", parse_mode="Markdown")
-    try:
-        bot.kick_chat_member(message.chat.id, target.id)
-        bot.reply_to(message, f"👢 {target.first_name} was kicked.")
-    except Exception as e:
-        bot.reply_to(message, f"❌ Failed to kick user.\nError: {e}")
-
-@bot.message_handler(commands=['ban'])
-def ban_user(message):
-    if not is_admin_or_owner(message.chat.id, message.from_user.id):
-        return bot.reply_to(message, "🚫 You lack admin permissions.")
-    target = extract_user(message)
-    if not target:
-        return bot.reply_to(message, "⚠️ Reply or use `/ban <user_id>`", parse_mode="Markdown")
-    try:
-        bot.ban_chat_member(message.chat.id, target.id)
-        bot.reply_to(message, f"🔒 {target.first_name} permanently banned.")
-    except Exception as e:
-        bot.reply_to(message, f"❌ Failed to ban user.\nError: {e}")
-
-@bot.message_handler(commands=['unban'])
-def unban_user(message):
-    if not is_admin_or_owner(message.chat.id, message.from_user.id):
-        return bot.reply_to(message, "🚫 You lack admin permissions.")
-    args = message.text.split()
-    if len(args) < 2 or not args[1].isdigit():
-        return bot.reply_to(message, "⚠️ Use `/unban <user_id>`", parse_mode="Markdown")
-    try:
-        bot.unban_chat_member(message.chat.id, int(args[1]))
-        bot.reply_to(message, f"✅ User {args[1]} unbanned successfully.")
-    except Exception as e:
-        bot.reply_to(message, f"❌ Failed to unban user.\nError: {e}")
 
 # --- Welcome & Goodbye ---
 WELCOME_IMAGE = "https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png"
