@@ -85,12 +85,26 @@ def give_balance(message):
 
 @bot.message_handler(commands=['balance'])
 def check_balance(message):
-    bal = user_balance.get(message.from_user.id, 0)
-    if bal == float('inf'):
-        send_and_auto_delete(message.chat.id, "💰 You have unlimited balance!")
-    else:
-        send_and_auto_delete(message.chat.id, f"💰 Your balance: {bal}")
+    user_id = message.from_user.id
+    first_name = message.from_user.first_name
+    username = f"@{message.from_user.username}" if message.from_user.username else "❌ None"
+    bal = user_balance.get(user_id, 0)
 
+    if bal == float('inf'):
+        balance_text = "♾️ Unlimited"
+    else:
+        balance_text = f"{bal}"
+
+    text = (
+        f"💳 **Balance Information**\n\n"
+        f"👤 **Name:** {first_name}\n"
+        f"💬 **Username:** {username}\n"
+        f"🆔 **ID:** `{user_id}`\n"
+        f"💰 **Balance:** {balance_text}"
+    )
+
+    send_and_auto_delete(message.chat.id, text)
+    
 # ===================== #
 #   INLINE MENU (KEY)   #
 # ===================== #
@@ -308,9 +322,44 @@ def get_id(message):
 
 @bot.message_handler(commands=['info'])
 def info(message):
+    # Determine target: replied user or self
     target = message.reply_to_message.from_user if message.reply_to_message else message.from_user
-    username = f"@{target.username}" if target.username else "❌ No username"
-    send_and_auto_delete(message.chat.id, f"👤 Name: {target.first_name}\n💬 Username: {username}\n🆔 ID: `{target.id}`", parse_mode="Markdown")
+    user_id = target.id
+    first_name = target.first_name
+    username = f"@{target.username}" if target.username else "❌ None"
+
+    # Default rank if private chat
+    rank = "❌ Not in a group"
+
+    # Only try to get rank if it's a group or supergroup
+    if message.chat.type in ['group', 'supergroup']:
+        try:
+            member = bot.get_chat_member(message.chat.id, user_id)
+            status_map = {
+                "creator": "👑 Owner",
+                "administrator": "🛡 Admin",
+                "member": "👤 Member",
+                "restricted": "🔒 Restricted",
+                "left": "🚪 Left",
+                "kicked": "❌ Kicked"
+            }
+            rank = status_map.get(member.status, member.status)
+        except:
+            pass
+
+    # Profile link
+    profile_link = f"[Click Here](tg://user?id={user_id})"
+
+    # Compose message
+    text = (
+        f"👤 **Name:** {first_name}\n"
+        f"💬 **Username:** {username}\n"
+        f"🆔 **Telegram ID:** `{user_id}`\n"
+        f"🏷 **Rank:** {rank}\n"
+        f"🔗 **Profile Link:** {profile_link}"
+    )
+
+    send_and_auto_delete(message.chat.id, text, parse_mode="Markdown")
 
 # ===================== #
 #   FUN COMMANDS        #
