@@ -46,7 +46,7 @@ def give_balance(message):
     else:
         args = message.text.split()
         if len(args) < 2 or not args[1].isdigit():
-            return bot.reply_to(message, "⚠️ Usage: /give <user_id> or reply")
+            return bot.reply_to(message, "⚠️ Usage: /give <user_id> or reply to a user")
         target_user = type('User', (), {'id': int(args[1]), 'first_name': f'User {args[1]}'})()
     user_balance[target_user.id] = float('inf')
     bot.reply_to(message, f"✅ {target_user.first_name} now has unlimited balance!")
@@ -64,22 +64,30 @@ def send_inline_menu(user_id, username, name):
     if user_balance.get(user_id, 0) <= 0:
         return False
 
-    # --- Message with Access Key info ---
     info_text = (
-        "👑 **Welcome to Cris Tool Access System**\n"
-        "━━━━━━━━━━━━━━━━━━━━━━━\n"
-        "🎯 *Your verified King Rank credentials are below:*\n\n"
-        f"👤 **Name:** {name}\n"
-        f"💬 **Username:** @{username if username else 'N/A'}\n"
-        f"🆔 **User ID:** `{user_id}`\n"
-        f"🔑 **Access Key:** `{ACCESS_KEY}`\n\n"
-        "📩 *Please keep your access key confidential.*\n"
-        "👇 Tap the button below to open your **King Rank Portal.**"
-    )
+    "👑 **Welcome to the Cris King Rank Portal** 👑\n"
+    "━━━━━━━━━━━━━━━━━━━━━━━\n"
+    "🎮 *Elite Access Credentials:*\n\n"
+    f"👤 **Name:** {name}\n"
+    f"💬 **Username:** @{username if username else 'N/A'}\n"
+    f"🆔 **User ID:** `{user_id}`\n"
+    f"🔑 **Access Key:** `{ACCESS_KEY}`\n\n"
+    "⚔️ *This key grants you verified entry into the exclusive* **King Rank Network**.\n"
+    "🔒 Please keep your access credentials confidential at all times.\n\n"
+    "━━━━━━━━━━━━━━━━━━━━━━━\n"
+    "🏆 **About King Rank**\n"
+    "🔥 You’ve entered the elite circle of Cris players — the top-tier community of strategy, skill, and dedication.\n"
+    "Each rank milestone represents your achievements and commitment within the system.\n\n"
+    "💠 *Your privileges include:*\n"
+    "• Early access to upcoming features\n"
+    "• Priority in-game tools and customization\n"
+    "• Recognition among the King Rank elite\n\n"
+    "🚀 Tap below to open your **King Rank Control Center** and begin your journey to dominance."
+)
 
     target_url = "https://business-ten-lac.vercel.app/"
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("👑 King Rank Access", url=target_url))
+    markup.add(types.InlineKeyboardButton("👑 Open King Rank Portal", url=target_url))
 
     bot.send_message(user_id, info_text, parse_mode="Markdown", reply_markup=markup)
     return True
@@ -92,20 +100,99 @@ def menu(message):
     else:
         bot.reply_to(message, "❌ You have no balance.")
 
+# --- Admin Commands ---
+def extract_user(message):
+    """Extract user from reply or command argument."""
+    if message.reply_to_message:
+        return message.reply_to_message.from_user
+    args = message.text.split()
+    if len(args) >= 2 and args[1].isdigit():
+        return type('User', (), {'id': int(args[1]), 'first_name': f'User {args[1]}'})()
+    return None
+
+@bot.message_handler(commands=['kick'])
+def kick_user(message):
+    if not is_admin_or_owner(message.chat.id, message.from_user.id):
+        return bot.reply_to(message, "🚫 You don’t have permission.")
+    target = extract_user(message)
+    if not target:
+        return bot.reply_to(message, "⚠️ Reply or use /kick <user_id>")
+    try:
+        bot.kick_chat_member(message.chat.id, target.id)
+        bot.reply_to(message, f"👢 {target.first_name} has been kicked!")
+    except:
+        bot.reply_to(message, "❌ Failed to kick user.")
+
+@bot.message_handler(commands=['ban'])
+def ban_user(message):
+    if not is_admin_or_owner(message.chat.id, message.from_user.id):
+        return bot.reply_to(message, "🚫 You don’t have permission.")
+    target = extract_user(message)
+    if not target:
+        return bot.reply_to(message, "⚠️ Reply or use /ban <user_id>")
+    try:
+        bot.ban_chat_member(message.chat.id, target.id)
+        bot.reply_to(message, f"🔒 {target.first_name} has been banned!")
+    except:
+        bot.reply_to(message, "❌ Failed to ban user.")
+
+@bot.message_handler(commands=['unban'])
+def unban_user(message):
+    if not is_admin_or_owner(message.chat.id, message.from_user.id):
+        return bot.reply_to(message, "🚫 You don’t have permission.")
+    args = message.text.split()
+    if len(args) < 2 or not args[1].isdigit():
+        return bot.reply_to(message, "⚠️ Usage: /unban <user_id>")
+    user_id = int(args[1])
+    try:
+        bot.unban_chat_member(message.chat.id, user_id)
+        bot.reply_to(message, f"✅ User `{user_id}` has been unbanned!", parse_mode="Markdown")
+    except:
+        bot.reply_to(message, "❌ Failed to unban user.")
+
+# --- Warn system ---
+user_warnings = {}
+
+@bot.message_handler(commands=['warn'])
+def warn_user(message):
+    if not is_admin_or_owner(message.chat.id, message.from_user.id):
+        return bot.reply_to(message, "🚫 You don’t have permission.")
+    target = extract_user(message)
+    if not target:
+        return bot.reply_to(message, "⚠️ Reply or use /warn <user_id>")
+    user_warnings[target.id] = user_warnings.get(target.id, 0) + 1
+    bot.reply_to(message, f"⚠️ {target.first_name} has been warned ({user_warnings[target.id]} warnings).")
+    if user_warnings[target.id] >= 3:
+        bot.kick_chat_member(message.chat.id, target.id)
+        bot.send_message(message.chat.id, f"🚨 {target.first_name} reached 3 warnings and was kicked.")
+
+@bot.message_handler(commands=['unwarn'])
+def unwarn_user(message):
+    if not is_admin_or_owner(message.chat.id, message.from_user.id):
+        return bot.reply_to(message, "🚫 You don’t have permission.")
+    target = extract_user(message)
+    if not target:
+        return bot.reply_to(message, "⚠️ Reply or use /unwarn <user_id>")
+    user_warnings[target.id] = max(0, user_warnings.get(target.id, 0) - 1)
+    bot.reply_to(message, f"✅ {target.first_name}'s warning removed ({user_warnings[target.id]} left).")
+
 # --- Start & help ---
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.reply_to(message, f"👋 Hello {message.from_user.first_name}!\nI'm **Cris Bot**.\nUse /help to see commands.", parse_mode="Markdown")
+    bot.reply_to(message, f"👋 Hello {message.from_user.first_name}!\nWelcome to **Cris Bot** — your professional King Rank assistant.\nUse /help to see available commands.", parse_mode="Markdown")
 
 @bot.message_handler(commands=['help'])
 def help_cmd(message):
     text = (
-        "🤖 **Cris Bot Commands**\n\n"
-        "🛡 Moderation (Admins & Owner)\n"
-        "/ban /unban /kick /mute /unmute /warn /unwarn\n"
-        "💰 Balance:\n/balance /menu\n"
-        "🧠 Utilities:\n/id /info /quote /rules\n"
-        "🎉 Fun:\n/hug /slap"
+        "🤖 **Cris Bot Command List**\n\n"
+        "🛡 **Admin Tools:**\n"
+        "/kick /ban /unban /warn /unwarn\n\n"
+        "💰 **Balance Commands:**\n"
+        "/give /balance /menu\n\n"
+        "🧠 **Utility Commands:**\n"
+        "/id /info /rules /quote\n\n"
+        "🎮 **Fun Commands:**\n"
+        "/hug /slap"
     )
     bot.reply_to(message, text, parse_mode="Markdown")
 
@@ -133,15 +220,17 @@ def slap(message):
 
 @bot.message_handler(commands=['quote'])
 def quote(message):
-    quotes = ["🌟 Keep pushing forward!", "💪 Every setback is a setup for a comeback.", "🔥 Success starts with self-belief.", "🌈 Stay positive and work hard."]
+    quotes = [
+        "🔥 Greatness begins with a single step.",
+        "⚔️ Legends aren’t born, they’re made.",
+        "🏆 Stay sharp, stay focused, stay king.",
+        "🎮 Every loss is just training for your next win."
+    ]
     bot.reply_to(message, random.choice(quotes))
 
 @bot.message_handler(commands=['rules'])
 def rules(message):
-    bot.reply_to(message, "📜 **Rules:**\n1️⃣ Be respectful\n2️⃣ No spam\n3️⃣ Follow admin instructions\n4️⃣ Avoid offensive words\n5️⃣ Enjoy your stay", parse_mode="Markdown")
-
-# --- Warnings, mute/ban/kick (unchanged from your code) ---
-# [Your existing warn, unwarn, mute, unmute, kick, ban, unban handlers stay here]
+    bot.reply_to(message, "📜 **Rules:**\n1️⃣ Respect all members\n2️⃣ No spam or toxicity\n3️⃣ Follow admin guidance\n4️⃣ No NSFW\n5️⃣ Enjoy your stay 👑", parse_mode="Markdown")
 
 # --- Welcome & Goodbye ---
 WELCOME_IMAGE = "https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png"
@@ -157,16 +246,13 @@ def welcome(message):
         name = member.first_name
         username = f"@{member.username}" if member.username else "❌ No username"
         user_id = member.id
-        if custom_text:
-            text = custom_text.format(name=name, username=username, id=user_id, group=group_name)
-        else:
-            text = (
-                f"🎉 **Welcome to {group_name}!** 🎉\n\n"
-                f"👋 Hello {name}, we are pleased to have you join our community.\n"
-                f"💬 **Username:** {username}\n"
-                f"🆔 **ID:** `{user_id}`\n\n"
-                "📜 Please make sure to read /rules and follow them for a pleasant experience."
-            )
+        text = (
+            f"🎉 **Welcome to {group_name}!** 🎉\n\n"
+            f"👋 Hey {name}, we’re excited to have you join our squad.\n"
+            f"💬 **Username:** {username}\n"
+            f"🆔 **ID:** `{user_id}`\n\n"
+            "📘 Read /rules before starting your journey. Let’s rise together! ⚔️"
+        )
         bot.send_photo(message.chat.id, WELCOME_IMAGE, caption=text, parse_mode="Markdown")
 
 @bot.message_handler(content_types=['left_chat_member'])
@@ -174,9 +260,9 @@ def goodbye(message):
     user = message.left_chat_member
     group_name = message.chat.title
     text = (
-        f"👋 **Goodbye, {user.first_name}!**\n\n"
-        f"No one will miss you from **{group_name}** 😌\n"
-        "We wish you the best in your future endeavors."
+        f"👋 **Farewell, {user.first_name}!**\n\n"
+        f"You’ve left **{group_name}**.\n"
+        "We wish you success on your next mission. 🚀"
     )
     bot.send_photo(message.chat.id, GOODBYE_IMAGE, caption=text, parse_mode="Markdown")
 
