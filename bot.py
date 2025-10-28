@@ -5,6 +5,7 @@ import os
 import random
 import threading
 import time
+import requests
 
 BOT_TOKEN = "8210989428:AAEmQW5V1fsYTSLDQzxv6_KaiUX5ZLQOHLI"
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -480,11 +481,9 @@ def goodbye(message):
 # ===================== AUTO REACTION ===================== 
 @bot.message_handler(func=lambda message: True, content_types=['text', 'sticker', 'photo', 'video'])
 def auto_react(message):
-    # Avoid reacting to the bot's own messages
     if message.from_user.id == bot.get_me().id:
         return
 
-    # List of 40 emojis to react with
     reactions = [
         "👍", "👀", "🔥", "💯", "✨",
         "😂", "😎", "🤩", "🥳", "💖",
@@ -495,11 +494,19 @@ def auto_react(message):
         "🫶", "🫡", "🥰", "🫠", "💌",
         "🧿", "🌟", "🍀", "☄️", "💎"
     ]
-    
-    
-    reaction = random.choice(reactions)
-    
-    bot.reply_to(message, reaction)
+    emoji = random.choice(reactions)
+
+    # Use Bot API directly to react
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/setMessageReaction"
+    data = {
+        "chat_id": message.chat.id,
+        "message_id": message.message_id,
+        "reaction": emoji
+    }
+    try:
+        requests.post(url, data=data)
+    except Exception as e:
+        print(f"Reaction failed: {e}")
 
 # ===================== START BOT LOOP ===================== 
 print("✅ Cris Bot is running...")
