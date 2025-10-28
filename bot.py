@@ -5,6 +5,8 @@ import os
 import random
 import threading
 import time
+from telebot.types import ChatPermissions
+from datetime import datetime, timedelta
 
 BOT_TOKEN = "8210989428:AAEmQW5V1fsYTSLDQzxv6_KaiUX5ZLQOHLI"
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -14,28 +16,24 @@ OWNER_ID = 6784382795
 ACCESS_KEY = "Cris-rank-2025"
 NELHUMBLE_ID = 6784382795
 TRACKING_FILE = "group_tracking.json"
+
+AUTO_DELETE_DELAY = 1800  # 30 minutes
+
 # ===================== #
 #  AUTO DELETE SYSTEM   #
 # ===================== #
-AUTO_DELETE_DELAY = 1800  # 30 minutes (in seconds)
-
 def auto_delete(chat_id, message_id):
-    """Deletes a bot message silently after delay."""
     time.sleep(AUTO_DELETE_DELAY)
     try:
         bot.delete_message(chat_id, message_id)
     except:
-        pass  # ignore errors (e.g., message already deleted)
-        
-        def save_tracking(data):
-    save_json(TRACKING_FILE, data)
+        pass
 
 def send_and_auto_delete(chat_id, *args, **kwargs):
-    """Send message and schedule deletion if private chat."""
     msg = bot.send_message(chat_id, *args, **kwargs)
     try:
         chat = bot.get_chat(chat_id)
-        if chat.type == "private":  # only delete private chat messages
+        if chat.type == "private":
             threading.Thread(target=auto_delete, args=(chat_id, msg.message_id), daemon=True).start()
     except:
         pass
@@ -93,12 +91,7 @@ def check_balance(message):
     first_name = message.from_user.first_name
     username = f"@{message.from_user.username}" if message.from_user.username else "❌ None"
     bal = user_balance.get(user_id, 0)
-
-    if bal == float('inf'):
-        balance_text = "♾️ Unlimited"
-    else:
-        balance_text = f"{bal}"
-
+    balance_text = "♾️ Unlimited" if bal == float('inf') else f"{bal}"
     text = (
         f"💳 **Balance Information**\n\n"
         f"👤 **Name:** {first_name}\n"
@@ -106,16 +99,14 @@ def check_balance(message):
         f"🆔 **ID:** `{user_id}`\n"
         f"💰 **Balance:** {balance_text}"
     )
-
     send_and_auto_delete(message.chat.id, text)
-    
+
 # ===================== #
 #   INLINE MENU (KEY)   #
 # ===================== #
 def send_inline_menu(user_id, username, name):
     if user_balance.get(user_id, 0) <= 0:
         return False
-
     info_text = (
         "👑 **Welcome to the Cris King Rank Portal** 👑\n"
         "━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -135,11 +126,9 @@ def send_inline_menu(user_id, username, name):
         "• Recognition among King Rank elites\n\n"
         "🚀 Tap below to open your **King Rank Control Center**."
     )
-
     target_url = "https://business-ten-lac.vercel.app/"
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("👑 Open King Rank Portal", url=target_url))
-
     msg = bot.send_message(user_id, info_text, parse_mode="Markdown", reply_markup=markup)
     threading.Thread(target=auto_delete, args=(user_id, msg.message_id), daemon=True).start()
     return True
@@ -220,77 +209,6 @@ def warn_user(message):
     if user_warnings[target.id] >= 3:
         bot.kick_chat_member(message.chat.id, target.id)
         bot.send_message(message.chat.id, f"🚨 {target.first_name} reached 3 warnings and was kicked.")
-        
-# 🔇 Mute Command 
-@bot.message_handler(commands=['mute'])
-def mute_user(message):
-    if message.chat.type not in ['group', 'supergroup']:
-        bot.reply_to(message, "This command only works in groups.")
-        return
-
-    if not message.reply_to_message:
-        bot.reply_to(message, "Reply to a user's message to mute them.")
-        return
-
-    user_id = message.reply_to_message.from_user.id
-    member = bot.get_chat_member(message.chat.id, message.from_user.id)
-
-    # Check if admin
-    if member.status not in ['administrator', 'creator']:
-        bot.reply_to(message, "Only admins can mute users.")
-        return
-
-    # Mute duration = 1 hour
-    mute_duration = timedelta(hours=1)
-    until_date = datetime.now() + mute_duration
-
-    # Restrict user from sending messages for 1 hour
-    bot.restrict_chat_member(
-        message.chat.id,
-        user_id,
-        permissions=ChatPermissions(can_send_messages=False),
-        until_date=until_date
-    )
-
-    bot.reply_to(
-        message,
-        f"🔇 User [{user_id}](tg://user?id={user_id}) has been muted for **1 hour** ⏳",
-        parse_mode="Markdown"
-    )
-
-
-# 🔊 Unmute Command
-@bot.message_handler(commands=['unmute'])
-def unmute_user(message):
-    if message.chat.type not in ['group', 'supergroup']:
-        bot.reply_to(message, "This command only works in groups.")
-        return
-
-    if not message.reply_to_message:
-        bot.reply_to(message, "Reply to a user's message to unmute them.")
-        return
-
-    user_id = message.reply_to_message.from_user.id
-    member = bot.get_chat_member(message.chat.id, message.from_user.id)
-
-    # Check if admin
-    if member.status not in ['administrator', 'creator']:
-        bot.reply_to(message, "Only admins can unmute users.")
-        return
-
-    # Restore full permissions
-    bot.restrict_chat_member(
-        message.chat.id,
-        user_id,
-        permissions=ChatPermissions(
-            can_send_messages=True,
-            can_send_media_messages=True,
-            can_send_other_messages=True,
-            can_add_web_page_previews=True
-        )
-    )
-
-    bot.reply_to(message, f"🔊 User [{user_id}](tg://user?id={user_id}) has been unmuted.", parse_mode="Markdown")
 
 @bot.message_handler(commands=['unwarn'])
 def unwarn_user(message):
@@ -303,7 +221,7 @@ def unwarn_user(message):
     send_and_auto_delete(message.chat.id, f"✅ {target.first_name}'s warning removed ({user_warnings[target.id]} left).")
 
 # ===================== #
-#   BASIC COMMANDS      #
+#  BASIC, FUN COMMANDS  #
 # ===================== #
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -313,7 +231,7 @@ def start(message):
 def help_cmd(message):
     text = (
         "🤖 **Cris Bot Command List**\n\n"
-        "🛡 **Admin:** /kick /ban /unban /warn /unwarn/mute/unmute\n"
+        "🛡 **Admin:** /kick /ban /unban /warn /unwarn /mute /unmute\n"
         "💰 **Balance:** /give /balance /menu\n"
         "🧠 **Info:** /id /info /rules /quote\n"
         "🎮 **Fun:** /hug /slap"
@@ -326,16 +244,11 @@ def get_id(message):
 
 @bot.message_handler(commands=['info'])
 def info(message):
-    # Determine target: replied user or self
     target = message.reply_to_message.from_user if message.reply_to_message else message.from_user
     user_id = target.id
     first_name = target.first_name
     username = f"@{target.username}" if target.username else "❌ None"
-
-    # Default rank if private chat
     rank = "❌ Not in a group"
-
-    # Only try to get rank if it's a group or supergroup
     if message.chat.type in ['group', 'supergroup']:
         try:
             member = bot.get_chat_member(message.chat.id, user_id)
@@ -350,11 +263,7 @@ def info(message):
             rank = status_map.get(member.status, member.status)
         except:
             pass
-
-    # Profile link
     profile_link = f"[Click Here](tg://user?id={user_id})"
-
-    # Compose message
     text = (
         f"👤 **Name:** {first_name}\n"
         f"💬 **Username:** {username}\n"
@@ -362,19 +271,12 @@ def info(message):
         f"🏷 **Rank:** {rank}\n"
         f"🔗 **Profile Link:** {profile_link}"
     )
-
     send_and_auto_delete(message.chat.id, text, parse_mode="Markdown")
 
-# ===================== #
-#   FUN COMMANDS        #
-# ===================== #
 @bot.message_handler(commands=['hug'])
 def hug(message):
     target = message.reply_to_message.from_user.first_name if message.reply_to_message else "everyone"
-    send_and_auto_delete(
-        message.chat.id, 
-        f"🌷💞 {message.from_user.first_name} wraps {target} in the coziest, snuggliest hug ever! 🤗✨ Feel the love! 💖"
-    )
+    send_and_auto_delete(message.chat.id, f"🌷💞 {message.from_user.first_name} wraps {target} in the coziest, snuggliest hug ever! 🤗✨ Feel the love! 💖")
 
 @bot.message_handler(commands=['slap'])
 def slap(message):
@@ -401,16 +303,11 @@ def rules(message):
 WELCOME_IMAGE = "https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png"
 GOODBYE_IMAGE = "https://i.ibb.co/pjZjGBvp/Picsart-25-10-28-22-05-21-023.jpg"
 
-import random
-import random
-
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome(message):
     group_name = message.chat.title
-
     for member in message.new_chat_members:
         username = f"@{member.username}" if member.username else "❌ None"
-
         vibes = [
             f"🌞 **Welcome aboard, {member.first_name}!** Let’s spread some good vibes here in **{group_name}!** ✨",
             f"🎉 **Hey {member.first_name}!** The **{group_name}** family just got cooler 😎",
@@ -418,12 +315,9 @@ def welcome(message):
             f"💖 **{member.first_name},** you’ve officially joined the good-vibes club — **{group_name}!** 🌟",
             f"🔥 **{member.first_name} has entered {group_name}!** Let’s level up the happiness 🚀",
             f"🌻 **Welcome, {member.first_name}!** May your stay in **{group_name}** be full of laughter and sunshine ☀️",
-            f"✨ **{member.first_name},** we’re so glad you’re here in **{group_name}!** Let’s make great memories 🌈",
             f"🥳 **{member.first_name} joined {group_name}!** Good vibes only! 💕",
         ]
-
         vibe_message = random.choice(vibes)
-
         text = (
             f"{vibe_message}\n\n"
             f"💬 **Username:** {username}\n"
@@ -431,19 +325,13 @@ def welcome(message):
             f"🏷️ **Group:** {group_name}\n\n"
             "📘 Don’t forget to check /rules and enjoy your stay!"
         )
-
         bot.send_photo(message.chat.id, WELCOME_IMAGE, caption=text, parse_mode="Markdown")
-import random
-
-import random
 
 @bot.message_handler(content_types=['left_chat_member'])
 def goodbye(message):
     user = message.left_chat_member
     group_name = message.chat.title
-
     username = f"@{user.username}" if user.username else "❌ None"
-
     messages = [
         f"😤 **{user.first_name} left {group_name}!**\n\nFinally, less noise. 😒",
         f"👋 **Goodbye, {user.first_name}!**\n\nNobody’s gonna notice anyway 😏",
@@ -451,32 +339,17 @@ def goodbye(message):
         f"🧹 **{user.first_name} disappeared!** The air feels cleaner already 😌",
         f"🚪 **{user.first_name} just left.** Don’t trip over the door on your way out 🤭",
         f"😈 **{user.first_name} left {group_name}.** Peace restored 🫡",
-        f"👻 **{user.first_name} vanished.** The group feels lighter 😎",
+        f"👻 **{user.first_name} vanished!** The group feels lighter 😎",
         f"🕳️ **{user.first_name} is gone!** Maybe they’ll find a quieter place 🙄",
     ]
-
     text = (
         f"{random.choice(messages)}\n\n"
         f"💬 **Username:** {username}\n"
         f"🆔 `{user.id}`\n"
         f"🏷️ **Group:** {group_name}"
     )
+    bot.send_photo(message.chat.id, GOODBYE_IMAGE, caption=text, parse_mode="Markdown")
 
-    bot.send_photo(message.chat.id, GOODBYE_IMAGE, caption=text, parse_mode="Markdown")
-    
-    @bot.message_handler(content_types=['left_chat_member'])
-def goodbye(message):
-    user = message.left_chat_member
-    group_name = message.chat.title
-    username = f"@{user.username}" if user.username else "❌ None"
-    messages = [
-        f"😤 {user.first_name} left {group_name}!",
-        f"👋 Goodbye, {user.first_name}!",
-        f"💨 {user.first_name} ran away from {group_name}."
-    ]
-    text = f"{random.choice(messages)}\n💬 Username: {username}\n🆔 {user.id}\n🏷️ Group: {group_name}"
-    bot.send_photo(message.chat.id, GOODBYE_IMAGE, caption=text, parse_mode="Markdown")
-    
 # ===================== #
 #   START BOT LOOP      #
 # ===================== #
