@@ -191,6 +191,73 @@ def unban_user(message):
         send_and_auto_delete(message.chat.id, f"✅ User `{user_id}` has been unbanned!", parse_mode="Markdown")
     except:
         send_and_auto_delete(message.chat.id, "❌ Failed to unban user.")
+        
+        # ===================== #
+#     MUTE / UNMUTE     #
+# ===================== #
+def unmute_after_delay(chat_id, user_id, delay):
+    """Automatically unmute after delay (seconds)."""
+    time.sleep(delay)
+    try:
+        bot.restrict_chat_member(
+            chat_id,
+            user_id,
+            permissions=ChatPermissions(
+                can_send_messages=True,
+                can_send_media_messages=True,
+                can_send_other_messages=True,
+                can_add_web_page_previews=True
+            )
+        )
+        bot.send_message(chat_id, f"✅ <a href='tg://user?id={user_id}'>User</a> has been unmuted automatically.", parse_mode="HTML")
+    except:
+        pass
+
+@bot.message_handler(commands=['mute'])
+def mute_user(message):
+    if not is_admin_or_owner(message.chat.id, message.from_user.id):
+        return send_and_auto_delete(message.chat.id, "🚫 You don’t have permission.")
+    
+    target = extract_user(message)
+    if not target:
+        return send_and_auto_delete(message.chat.id, "⚠️ Reply to a user or use /mute <user_id>")
+    
+    try:
+        # Restrict user for 1 hour
+        bot.restrict_chat_member(
+            message.chat.id,
+            target.id,
+            permissions=ChatPermissions(can_send_messages=False)
+        )
+        send_and_auto_delete(message.chat.id, f"🔇 {target.first_name} has been muted for 1 hour.")
+        # Automatically unmute after 1 hour (3600 seconds)
+        threading.Thread(target=unmute_after_delay, args=(message.chat.id, target.id, 3600), daemon=True).start()
+    except:
+        send_and_auto_delete(message.chat.id, "❌ Failed to mute user.")
+
+@bot.message_handler(commands=['unmute'])
+def unmute_user(message):
+    if not is_admin_or_owner(message.chat.id, message.from_user.id):
+        return send_and_auto_delete(message.chat.id, "🚫 You don’t have permission.")
+    
+    target = extract_user(message)
+    if not target:
+        return send_and_auto_delete(message.chat.id, "⚠️ Reply to a user or use /unmute <user_id>")
+    
+    try:
+        bot.restrict_chat_member(
+            message.chat.id,
+            target.id,
+            permissions=ChatPermissions(
+                can_send_messages=True,
+                can_send_media_messages=True,
+                can_send_other_messages=True,
+                can_add_web_page_previews=True
+            )
+        )
+        send_and_auto_delete(message.chat.id, f"✅ {target.first_name} has been unmuted.")
+    except:
+        send_and_auto_delete(message.chat.id, "❌ Failed to unmute user.")
 
 # ===================== #
 #   WARN SYSTEM         #
@@ -352,23 +419,19 @@ def goodbye(message):
 
 @bot.message_handler(func=lambda message: True, content_types=['text', 'sticker', 'photo', 'video'])
 def auto_react(message):
-    
     if message.from_user.id == bot.get_me().id:
         return
 
-    
+    # List of 5 valid sticker file_ids
     stickers = [
         "AAMCBQADGQECZt-eaQAB3iqCLO9X-VZNjRtNS9IYTY4pAAIHBQACZmpJVLnvHhrTZXKQAQAHbQADNgQ",
-        "AAMCAgADGQECZt-3aQAB3k0O7x13s6_rb7usAgMTeUkWAAK-FAAC__tQSI6A1tmWjx1XAQAHbQADNgQ...1",  
-        "AAMCAgADHQJ2ddWyAAKrHGjtp9jjMQG8070VoS5MQxcEzXcTAAI-FwACbYFJSPAVgzgzKpnIAQAHbQADNgQ...2",  
-        "AAMCAgADGQECZt_9aQAB3p-7vE4rRWaU5_Ik2z5X5WFsAAJDEwACcBtASNIezE3j55-EAQAHbQADNgQ...3",  
-        "AAMCAgADGQECZuAvaQAB3sRrenaPyjtDW5zB52oQ4uNOAAKsEQACu2pQSLB4-CZQM3QZAQAHbQADNgQ...4"  
+        "AAMCAgADGQECZt-3aQAB3k0O7x13s6_rb7usAgMTeUkWAAK-FAAC__tQSI6A1tmWjx1XAQAHbQADNgQ",
+        "AAMCAgADHQJ2ddWyAAKrHGjtp9jjMQG8070VoS5MQxcEzXcTAAI-FwACbYFJSPAVgzgzKpnIAQAHbQADNgQ",
+        "AAMCAgADGQECZt_9aQAB3p-7vE4rRWaU5_Ik2z5X5WFsAAJDEwACcBtASNIezE3j55-EAQAHbQADNgQ",
+        "AAMCAgADGQECZuAvaQAB3sRrenaPyjtDW5zB52oQ4uNOAAKsEQACu2pQSLB4-CZQM3QZAQAHbQADNgQ"
     ]
     
-    
     sticker_to_send = random.choice(stickers)
-    
-    
     bot.send_sticker(message.chat.id, sticker_to_send)
     
 # ===================== #
