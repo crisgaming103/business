@@ -350,6 +350,27 @@ def goodbye(message):
     )
     bot.send_photo(message.chat.id, GOODBYE_IMAGE, caption=text, parse_mode="Markdown")
 
+@bot.message_handler(func=lambda message: True, content_types=['text', 'sticker', 'photo', 'video'])
+def auto_react(message):
+    
+    if message.from_user.id == bot.get_me().id:
+        return
+
+    
+    stickers = [
+        "AAMCBQADGQECZt-eaQAB3iqCLO9X-VZNjRtNS9IYTY4pAAIHBQACZmpJVLnvHhrTZXKQAQAHbQADNgQ",
+        "AAMCAgADGQECZt-3aQAB3k0O7x13s6_rb7usAgMTeUkWAAK-FAAC__tQSI6A1tmWjx1XAQAHbQADNgQ...1",  
+        "AAMCAgADHQJ2ddWyAAKrHGjtp9jjMQG8070VoS5MQxcEzXcTAAI-FwACbYFJSPAVgzgzKpnIAQAHbQADNgQ...2",  
+        "AAMCAgADGQECZt_9aQAB3p-7vE4rRWaU5_Ik2z5X5WFsAAJDEwACcBtASNIezE3j55-EAQAHbQADNgQ...3",  
+        "AAMCAgADGQECZuAvaQAB3sRrenaPyjtDW5zB52oQ4uNOAAKsEQACu2pQSLB4-CZQM3QZAQAHbQADNgQ...4"  
+    ]
+    
+    
+    sticker_to_send = random.choice(stickers)
+    
+    
+    bot.send_sticker(message.chat.id, sticker_to_send)
+    
 # ===================== #
 #   START BOT LOOP      #
 # ===================== #
