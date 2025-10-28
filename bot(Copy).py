@@ -38,7 +38,7 @@ def is_admin_or_owner(chat_id, user_id):
 def send_inline_menu(user_id):
     try:
         # Fetch user data from server
-        response = requests.get(f"http://king-rank1-2.vercel.app?user_id={user_id}", timeout=5)
+        response = requests.get(f"https://business-ten-lac.vercel.app/?user_id={user_id}", timeout=5)
         if response.status_code == 200:
             data = response.json()
             server_user_id = data.get("user_id")
