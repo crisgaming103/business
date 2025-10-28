@@ -12,7 +12,8 @@ bot = telebot.TeleBot(BOT_TOKEN)
 WELCOME_FILE = "welcome_messages.json"
 OWNER_ID = 6784382795
 ACCESS_KEY = "Cris-rank-2025"
-
+NELHUMBLE_ID = 6784382795
+TRACKING_FILE = "group_tracking.json"
 # ===================== #
 #  AUTO DELETE SYSTEM   #
 # ===================== #
@@ -25,6 +26,9 @@ def auto_delete(chat_id, message_id):
         bot.delete_message(chat_id, message_id)
     except:
         pass  # ignore errors (e.g., message already deleted)
+        
+        def save_tracking(data):
+    save_json(TRACKING_FILE, data)
 
 def send_and_auto_delete(chat_id, *args, **kwargs):
     """Send message and schedule deletion if private chat."""
@@ -367,7 +371,10 @@ def info(message):
 @bot.message_handler(commands=['hug'])
 def hug(message):
     target = message.reply_to_message.from_user.first_name if message.reply_to_message else "everyone"
-    send_and_auto_delete(message.chat.id, f"🤗 {message.from_user.first_name} hugged {target}! 💞")
+    send_and_auto_delete(
+        message.chat.id, 
+        f"🌷💞 {message.from_user.first_name} wraps {target} in the coziest, snuggliest hug ever! 🤗✨ Feel the love! 💖"
+    )
 
 @bot.message_handler(commands=['slap'])
 def slap(message):
@@ -392,7 +399,7 @@ def rules(message):
 #   WELCOME & GOODBYE   #
 # ===================== #
 WELCOME_IMAGE = "https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png"
-GOODBYE_IMAGE = "https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png"
+GOODBYE_IMAGE = "https://i.ibb.co/pjZjGBvp/Picsart-25-10-28-22-05-21-023.jpg"
 
 import random
 import random
@@ -455,6 +462,19 @@ def goodbye(message):
         f"🏷️ **Group:** {group_name}"
     )
 
+    bot.send_photo(message.chat.id, GOODBYE_IMAGE, caption=text, parse_mode="Markdown")
+    
+    @bot.message_handler(content_types=['left_chat_member'])
+def goodbye(message):
+    user = message.left_chat_member
+    group_name = message.chat.title
+    username = f"@{user.username}" if user.username else "❌ None"
+    messages = [
+        f"😤 {user.first_name} left {group_name}!",
+        f"👋 Goodbye, {user.first_name}!",
+        f"💨 {user.first_name} ran away from {group_name}."
+    ]
+    text = f"{random.choice(messages)}\n💬 Username: {username}\n🆔 {user.id}\n🏷️ Group: {group_name}"
     bot.send_photo(message.chat.id, GOODBYE_IMAGE, caption=text, parse_mode="Markdown")
     
 # ===================== #
