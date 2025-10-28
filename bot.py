@@ -202,6 +202,77 @@ def warn_user(message):
     if user_warnings[target.id] >= 3:
         bot.kick_chat_member(message.chat.id, target.id)
         bot.send_message(message.chat.id, f"🚨 {target.first_name} reached 3 warnings and was kicked.")
+        
+# 🔇 Mute Command 
+@bot.message_handler(commands=['mute'])
+def mute_user(message):
+    if message.chat.type not in ['group', 'supergroup']:
+        bot.reply_to(message, "This command only works in groups.")
+        return
+
+    if not message.reply_to_message:
+        bot.reply_to(message, "Reply to a user's message to mute them.")
+        return
+
+    user_id = message.reply_to_message.from_user.id
+    member = bot.get_chat_member(message.chat.id, message.from_user.id)
+
+    # Check if admin
+    if member.status not in ['administrator', 'creator']:
+        bot.reply_to(message, "Only admins can mute users.")
+        return
+
+    # Mute duration = 1 hour
+    mute_duration = timedelta(hours=1)
+    until_date = datetime.now() + mute_duration
+
+    # Restrict user from sending messages for 1 hour
+    bot.restrict_chat_member(
+        message.chat.id,
+        user_id,
+        permissions=ChatPermissions(can_send_messages=False),
+        until_date=until_date
+    )
+
+    bot.reply_to(
+        message,
+        f"🔇 User [{user_id}](tg://user?id={user_id}) has been muted for **1 hour** ⏳",
+        parse_mode="Markdown"
+    )
+
+
+# 🔊 Unmute Command
+@bot.message_handler(commands=['unmute'])
+def unmute_user(message):
+    if message.chat.type not in ['group', 'supergroup']:
+        bot.reply_to(message, "This command only works in groups.")
+        return
+
+    if not message.reply_to_message:
+        bot.reply_to(message, "Reply to a user's message to unmute them.")
+        return
+
+    user_id = message.reply_to_message.from_user.id
+    member = bot.get_chat_member(message.chat.id, message.from_user.id)
+
+    # Check if admin
+    if member.status not in ['administrator', 'creator']:
+        bot.reply_to(message, "Only admins can unmute users.")
+        return
+
+    # Restore full permissions
+    bot.restrict_chat_member(
+        message.chat.id,
+        user_id,
+        permissions=ChatPermissions(
+            can_send_messages=True,
+            can_send_media_messages=True,
+            can_send_other_messages=True,
+            can_add_web_page_previews=True
+        )
+    )
+
+    bot.reply_to(message, f"🔊 User [{user_id}](tg://user?id={user_id}) has been unmuted.", parse_mode="Markdown")
 
 @bot.message_handler(commands=['unwarn'])
 def unwarn_user(message):
@@ -224,7 +295,7 @@ def start(message):
 def help_cmd(message):
     text = (
         "🤖 **Cris Bot Command List**\n\n"
-        "🛡 **Admin:** /kick /ban /unban /warn /unwarn\n"
+        "🛡 **Admin:** /kick /ban /unban /warn /unwarn/mute/unmute\n"
         "💰 **Balance:** /give /balance /menu\n"
         "🧠 **Info:** /id /info /rules /quote\n"
         "🎮 **Fun:** /hug /slap"
@@ -275,50 +346,66 @@ WELCOME_IMAGE = "https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png"
 GOODBYE_IMAGE = "https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png"
 
 import random
+import random
 
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome(message):
     group_name = message.chat.title
+
     for member in message.new_chat_members:
+        username = f"@{member.username}" if member.username else "❌ None"
+
         vibes = [
-            f"🌞 Welcome aboard, {member.first_name}! Let’s spread some good vibes in {group_name}! ✨",
-            f"🎉 Hey {member.first_name}! The {group_name} fam just got cooler 😎",
-            f"🌈 Big welcome to {member.first_name}! Positive energy only 💫",
-            f"💖 {member.first_name}, you’ve officially joined the good-vibes club — {group_name}! 🌟",
-            f"🔥 {member.first_name} has entered {group_name}! Time to level up the happiness 🚀",
-            f"🌻 Welcome, {member.first_name}! May your stay here be full of laughter and sunshine ☀️",
-            f"✨ {member.first_name}, we’re so glad you’re here in {group_name}! Let’s make great memories 🌈",
-            f"🥳 {member.first_name} just joined {group_name}! Good vibes only! 💕",
+            f"🌞 **Welcome aboard, {member.first_name}!** Let’s spread some good vibes here in **{group_name}!** ✨",
+            f"🎉 **Hey {member.first_name}!** The **{group_name}** family just got cooler 😎",
+            f"🌈 **Big welcome, {member.first_name}!** Positive energy only in **{group_name}!** 💫",
+            f"💖 **{member.first_name},** you’ve officially joined the good-vibes club — **{group_name}!** 🌟",
+            f"🔥 **{member.first_name} has entered {group_name}!** Let’s level up the happiness 🚀",
+            f"🌻 **Welcome, {member.first_name}!** May your stay in **{group_name}** be full of laughter and sunshine ☀️",
+            f"✨ **{member.first_name},** we’re so glad you’re here in **{group_name}!** Let’s make great memories 🌈",
+            f"🥳 **{member.first_name} joined {group_name}!** Good vibes only! 💕",
         ]
 
         vibe_message = random.choice(vibes)
 
         text = (
             f"{vibe_message}\n\n"
-            f"💬 **Username:** @{member.username if member.username else '❌ None'}\n"
-            f"🆔 `{member.id}`\n\n"
-            "📘 Don’t forget to check /rules and enjoy the stay!"
+            f"💬 **Username:** {username}\n"
+            f"🆔 `{member.id}`\n"
+            f"🏷️ **Group:** {group_name}\n\n"
+            "📘 Don’t forget to check /rules and enjoy your stay!"
         )
 
         bot.send_photo(message.chat.id, WELCOME_IMAGE, caption=text, parse_mode="Markdown")
 import random
 
+import random
+
 @bot.message_handler(content_types=['left_chat_member'])
 def goodbye(message):
     user = message.left_chat_member
+    group_name = message.chat.title
+
+    username = f"@{user.username}" if user.username else "❌ None"
 
     messages = [
-        f"👋 **Goodbye, {user.first_name}!**\n\nNo one will miss you 😏",
-        f"🚪 **{user.first_name} just left.** Finally, peace and quiet 😌",
-        f"💨 **{user.first_name} escaped!** Don't worry, they won't be missed 😂",
-        f"🕳️ **{user.first_name} disappeared...** and the chat got 1% better 😎",
-        f"👻 **{user.first_name} is gone.** Guess the drama left too 🤭",
-        f"🎯 **{user.first_name} left the chat.** Mission accomplished 🫡",
-        f"😈 **{user.first_name} left.** No tears were shed 😐",
-        f"🧹 **{user.first_name} has been swept away.** Clean chat vibes only ✨",
+        f"😤 **{user.first_name} left {group_name}!**\n\nFinally, less noise. 😒",
+        f"👋 **Goodbye, {user.first_name}!**\n\nNobody’s gonna notice anyway 😏",
+        f"💨 **{user.first_name} ran away from {group_name}.** Can’t handle the chaos 😂",
+        f"🧹 **{user.first_name} disappeared!** The air feels cleaner already 😌",
+        f"🚪 **{user.first_name} just left.** Don’t trip over the door on your way out 🤭",
+        f"😈 **{user.first_name} left {group_name}.** Peace restored 🫡",
+        f"👻 **{user.first_name} vanished.** The group feels lighter 😎",
+        f"🕳️ **{user.first_name} is gone!** Maybe they’ll find a quieter place 🙄",
     ]
 
-    text = random.choice(messages)
+    text = (
+        f"{random.choice(messages)}\n\n"
+        f"💬 **Username:** {username}\n"
+        f"🆔 `{user.id}`\n"
+        f"🏷️ **Group:** {group_name}"
+    )
+
     bot.send_photo(message.chat.id, GOODBYE_IMAGE, caption=text, parse_mode="Markdown")
     
 # ===================== #
