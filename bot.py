@@ -6,6 +6,7 @@ import random
 import threading
 import time
 import requests
+import io
 
 BOT_TOKEN = "8210989428:AAEmQW5V1fsYTSLDQzxv6_KaiUX5ZLQOHLI"
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -125,7 +126,8 @@ def menu(message):
     else:
         send_and_auto_delete(message.chat.id, "❌ You have no balance.")
         
-        # Add this handler to your bot
+    
+
 @bot.message_handler(commands=['html'])
 def generate_html(message):
     user = message.from_user
@@ -136,7 +138,7 @@ def generate_html(message):
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Hello {user.first_name}</title>
 <style>
   body {{
@@ -184,13 +186,14 @@ def generate_html(message):
 </html>
 """
 
+    file_obj = io.BytesIO(html_code.encode('utf-8'))
+    file_obj.name = "crisgaming_hello.html"
+
     bot.send_document(
         chat_id=user.id,
-        data=html_code.encode('utf-8'),
-        filename="crisgaming_hello.html",
+        document=file_obj,
         caption="✅ Here's your personalized animated HTML page!"
     )
-
 # ===================== #
 #     OTHER COMMANDS
 # ===================== #
