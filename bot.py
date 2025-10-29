@@ -131,6 +131,15 @@ def menu(message):
 @bot.message_handler(commands=['html'])
 def generate_html(message):
     user = message.from_user
+
+    # Check if command is in a group
+    if message.chat.type in ['group', 'supergroup']:
+        send_and_auto_delete(
+            message.chat.id,
+            f"⚠️ {user.first_name}, you used /html in a group. "
+            "Your basic HTML page has been sent to your private chat instead."
+        )
+
     username = f"@{user.username}" if user.username else "N/A"
 
     html_code = f"""
@@ -189,6 +198,7 @@ def generate_html(message):
     file_obj = io.BytesIO(html_code.encode('utf-8'))
     file_obj.name = "crisgaming_hello.html"
 
+    # Send the HTML file directly to the user in private
     bot.send_document(
         chat_id=user.id,
         document=file_obj,
