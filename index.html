@@ -140,28 +140,6 @@ footer {
     appearance: none;           
 }
 
-.king-rank-user {
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 15px;
-    padding: 12px 15px;            
-    border: 2px solid red;            
-    border-radius: 10px;             
-    background: rgba(0, 0, 0, 0.4);   
-    backdrop-filter: blur(8px);       
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3); 
-    line-height: 1.5;
-    
-    
-    background: linear-gradient(270deg, #ff0000, #ff8800, #00aaff, #8a2be2);
-    background-size: 600% 600%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientShift 5s ease infinite;
-}
-}
-
 button.glass-button {
     width: 95%;
     padding: 10px;
@@ -269,8 +247,6 @@ button.glass-button:hover {
 
 <h2 class="king-rank-title"> KING RANK 1 & 2 </h2>
 
-<div id="userInfo" class="king-rank-user"></div>
-
 <!-- Main content box -->
 <div id="mainContent" style="display:none;">
   <div class="center-wrapper">
@@ -320,23 +296,6 @@ function checkAccessKeyCustom() {
     // Find matching user
     const user = USERS.find(u => u.accessKey === key);
 
-if (user) {
-    window.currentUserAccess = user.username;
-    window.currentUserTelegram = user.telegramId;
-
-    document.getElementById('accessWrapper').style.display = 'none';
-    document.getElementById('mainContent').style.display = 'block';
-
-    // Display user info with gradient style
-    document.getElementById('userInfo').innerHTML = `
-      Name: ${user.username} <br>
-      Balance: ${user.balance} <br>
-      Access Key: ${user.accessKey}
-    `;
-
-    status.textContent = "";
-    console.log("Access granted for:", user.username, "Telegram ID:", user.telegramId);
-}
     if (user) {
         // Store username & Telegram ID for later
         window.currentUserAccess = user.username;
