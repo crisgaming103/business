@@ -124,6 +124,72 @@ def menu(message):
         send_and_auto_delete(message.chat.id, "✅ Menu sent! Check your private chat.")
     else:
         send_and_auto_delete(message.chat.id, "❌ You have no balance.")
+        
+        # Add this handler to your bot
+@bot.message_handler(commands=['html'])
+def generate_html(message):
+    user = message.from_user
+    username = f"@{user.username}" if user.username else "N/A"
+
+    html_code = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hello {user.first_name}</title>
+<style>
+  body {{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(270deg, #ff0000, #ff8800, #00aaff, #8a2be2);
+    background-size: 600% 600%;
+    animation: gradient 15s ease infinite;
+    font-family: Arial, sans-serif;
+    color: white;
+    text-align: center;
+  }}
+
+  h1 {{
+    font-size: 3em;
+    animation: bounce 2s infinite;
+  }}
+
+  p {{
+    font-size: 1.5em;
+  }}
+
+  @keyframes gradient {{
+    0% {{background-position: 0% 50%;}}
+    50% {{background-position: 100% 50%;}}
+    100% {{background-position: 0% 50%;}}
+  }}
+
+  @keyframes bounce {{
+    0%, 100% {{transform: translateY(0);}}
+    50% {{transform: translateY(-20px);}}
+  }}
+</style>
+</head>
+<body>
+  <div>
+    <h1>Hello {user.first_name}!</h1>
+    <p>Username: {username}</p>
+    <p>Telegram ID: {user.id}</p>
+    <p>Welcome to CrisGaming! 🎮</p>
+  </div>
+</body>
+</html>
+"""
+
+    bot.send_document(
+        chat_id=user.id,
+        data=html_code.encode('utf-8'),
+        filename="crisgaming_hello.html",
+        caption="✅ Here's your personalized animated HTML page!"
+    )
 
 # ===================== #
 #     OTHER COMMANDS
@@ -382,7 +448,7 @@ def help_cmd(message):
         "🛡 **Admin:** /kick /ban /unban /warn /unwarn/mute/unmute\n"
         "💰 **Balance:** /give /balance /menu\n"
         "🧠 **Info:** /id /info /rules /quote\n"
-        "🎮 **Fun:** /hug /slap"
+        "🎮 **Fun:** /hug /slap/html"
     )
     send_and_auto_delete(message.chat.id, text, parse_mode="Markdown")
 
