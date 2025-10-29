@@ -481,28 +481,24 @@ def welcome(message):
     for member in message.new_chat_members:
         username = f"@{member.username}" if member.username else "❌ None"
 
-        vibes = [
-            f"🌞 **Welcome aboard, {member.first_name}!** Let’s spread some good vibes here in **{group_name}!** ✨",
-            f"🎉 **Hey {member.first_name}!** The **{group_name}** family just got cooler 😎",
-            f"🌈 **Big welcome, {member.first_name}!** Positive energy only in **{group_name}!** 💫",
-            f"💖 **{member.first_name},** you’ve officially joined the good-vibes club — **{group_name}!** 🌟",
-            f"🔥 **{member.first_name} has entered {group_name}!** Let’s level up the happiness 🚀",
-            f"🌻 **Welcome, {member.first_name}!** May your stay in **{group_name}** be full of laughter and sunshine ☀️",
-            f"✨ **{member.first_name},** we’re so glad you’re here in **{group_name}!** Let’s make great memories 🌈",
-            f"🥳 **{member.first_name} joined {group_name}!** Good vibes only! 💕",
-        ]
-
-        vibe_message = random.choice(vibes)
-
+        # Professional welcome text
         text = (
-            f"{vibe_message}\n\n"
-            f"💬 **Username:** {username}\n"
-            f"🆔 `{member.id}`\n"
-            f"🏷️ **Group:** {group_name}\n\n"
-            "📘 Don’t forget to check /rules and enjoy your stay!"
+            f"🌟 **Welcome to {group_name}!** 🌟\n\n"
+            f"👋 Hello, **{member.first_name}**!\n"
+            f"💬 Username : {username}\n"
+            f"🆔 ID       : `{member.id}`\n\n"
+            f"✨ We’re thrilled to have you here. Please check the /rules to get started.\n"
+            f"🎮 Enjoy your time and participate actively!\n\n"
+            f"📌 Group: **{group_name}**"
         )
 
-        bot.send_photo(message.chat.id, WELCOME_IMAGE, caption=text, parse_mode="Markdown")
+        # Optionally, you can use a professional-looking welcome image
+        bot.send_photo(
+            chat_id=message.chat.id,
+            photo=WELCOME_IMAGE,
+            caption=text,
+            parse_mode="Markdown"
+        )
 import random
 
 import random
