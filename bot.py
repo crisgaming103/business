@@ -79,15 +79,38 @@ def require_balance(func):
         return func(message, *args, **kwargs)
     return wrapper
 @bot.message_handler(commands=['start'])
-
-@require_balance
 def start(message):
-    send_and_auto_delete(
-        message.chat.id,
-        f"👋 Hello {message.from_user.first_name}!\n"
-        "Welcome to **Cris Bot** — your King Rank assistant.\n"
-        "Use /help to see commands.",
-        parse_mode="Markdown"
+    user = message.from_user
+
+    # Fancy Crisbot start text
+    text = (
+        f"────「 𝙲𝚁𝙸𝚂𝙱𝙾𝚃 」────\n"
+        f"❂ ʜᴇʟʟ𝚘 {user.first_name}.{user.id}...\n"
+        f"×⋆✦⋆──────────────⋆✦⋆×\n"
+        f"ɪ ᴀᴍ 𝙲𝚛𝚒𝚜𝚋𝚘𝚝 ᴀ ɢʀᴏᴜᴘ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ ᴡʜɪᴄʜ ᴄᴀɴ ʜᴇʟᴘ ʏᴏᴜ ᴛᴏ ᴍᴀɴᴀɢᴇ ᴀɴᴅ ꜱᴇᴄᴜʀᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘ.\n"
+        f"×⋆✦⋆──────────────⋆✦⋆×\n"
+        f"ᴄʟɪᴄᴋ ᴏɴ /help ᴄᴏᴍᴍᴀɴᴅs ᴛᴏ ʟᴇᴀʀɴ ᴍᴏʀᴇ!"
+    )
+
+    # Inline button to add bot to a group
+    markup = types.InlineKeyboardMarkup()
+    markup.add(
+        types.InlineKeyboardButton(
+            "➕ Add me to your group", 
+            url=f"https://t.me/{bot.get_me().username}?startgroup=true"
+        )
+    )
+
+    # Welcome image
+    start_image = "https://i.ibb.co/Z7SvBv0/Picsart-25-10-29-09-31-06-902.jpg"
+
+    # Send photo with caption and inline button
+    bot.send_photo(
+        chat_id=message.chat.id, 
+        photo=start_image, 
+        caption=text, 
+        parse_mode="Markdown", 
+        reply_markup=markup
     )
 
 # ===================== #
@@ -445,8 +468,8 @@ def rules(message):
 # ===================== #
 #   WELCOME & GOODBYE   #
 # ===================== #
-WELCOME_IMAGE = "https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png"
-GOODBYE_IMAGE = "https://i.ibb.co/QjzpnFyL/Picsart-25-10-06-22-05-54-728.png"
+WELCOME_IMAGE = "https://i.ibb.co/Z7SvBv0/Picsart-25-10-29-09-31-06-902.jpg"
+GOODBYE_IMAGE = "https://i.ibb.co/pjZjGBvp/Picsart-25-10-28-22-05-21-023.jpg"
 
 import random
 import random
