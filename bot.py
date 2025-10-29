@@ -298,36 +298,29 @@ def warn_user(message):
 @bot.message_handler(commands=['mute'])
 def mute_user(message):
     if message.chat.type not in ['group', 'supergroup']:
-        bot.reply_to(message, "This command only works in groups.")
-        return
-
+        return bot.reply_to(message, "This command only works in groups.")
+    
     if not message.reply_to_message:
-        bot.reply_to(message, "Reply to a user's message to mute them.")
-        return
-
+        return bot.reply_to(message, "Reply to a user's message to mute them.")
+    
     user_id = message.reply_to_message.from_user.id
     member = bot.get_chat_member(message.chat.id, message.from_user.id)
-
-    # Check if admin
+    
     if member.status not in ['administrator', 'creator']:
-        bot.reply_to(message, "Only admins can mute users.")
-        return
-
-    # Mute duration = 1 hour
-    mute_duration = timedelta(hours=1)
-    until_date = datetime.now() + mute_duration
-
-    # Restrict user from sending messages for 1 hour
+        return bot.reply_to(message, "Only admins can mute users.")
+    
+    until_date = int(time.time() + 3600)  # 1 hour in UTC timestamp
+    
     bot.restrict_chat_member(
-        message.chat.id,
-        user_id,
-        permissions=ChatPermissions(can_send_messages=False),
+        chat_id=message.chat.id,
+        user_id=user_id,
+        permissions=types.ChatPermissions(can_send_messages=False),
         until_date=until_date
     )
-
+    
     bot.reply_to(
         message,
-        f"🔇 User [{user_id}](tg://user?id={user_id}) has been muted for **1 hour** ⏳",
+        f"🔇 User [{user_id}](tg://user?id={user_id}) has been muted for 1 hour ⏳",
         parse_mode="Markdown"
     )
 
