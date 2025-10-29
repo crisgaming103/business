@@ -106,7 +106,6 @@ def menu(message):
 #     OTHER COMMANDS
 # ===================== #
 @bot.message_handler(commands=['balance'])
-@require_balance
 def check_balance(message):
     user = message.from_user
     bal = user_balance.get(user.id, 0)
@@ -123,7 +122,7 @@ def check_balance(message):
         "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"👤 Name       : *{user.first_name}*\n"
         f"🆔 ID         : `{user.id}`\n"
-        f"{balance_text}\n"
+        f"🛡aBalance:{balance_text}\n"
         f"⚡ Status     : ✅ Access Confirmed\n\n"
         "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         "🔥 *CrisGame isn’t given, it’s taken.* 🔥\n"
@@ -377,10 +376,45 @@ def get_id(message):
 
 @bot.message_handler(commands=['info'])
 def info(message):
+    # Determine target user
     target = message.reply_to_message.from_user if message.reply_to_message else message.from_user
     username = f"@{target.username}" if target.username else "❌ No username"
-    send_and_auto_delete(message.chat.id, f"👤 Name: {target.first_name}\n💬 Username: {username}\n🆔 ID: `{target.id}`", parse_mode="Markdown")
+    
+    # Get chat member info (to check rank)
+    rank = "❌ Unknown"
+    try:
+        member = bot.get_chat_member(message.chat.id, target.id)
+        status = member.status  # can be 'creator', 'administrator', 'member', 'restricted', 'left', 'kicked'
+        if status == 'creator':
+            rank = "👑 Owner"
+        elif status == 'administrator':
+            rank = "🛡️ Admin"
+        elif status == 'member':
+            rank = "👤 Member"
+        elif status == 'restricted':
+            rank = "⛔ Restricted"
+        elif status == 'left':
+            rank = "👋 Left"
+        elif status == 'kicked':
+            rank = "🚫 Banned"
+        else:
+            rank = f"ℹ️ {status}"
+    except:
+        rank = "❌ Unknown"
 
+    # Profile link
+    profile_link = f"[Link](tg://user?id={target.id})"
+
+    # Send info message
+    text = (
+        f"👤 Name       : {target.first_name}\n"
+        f"💬 Username   : {username}\n"
+        f"🆔 Telegram ID: `{target.id}`\n"
+        f"🏷️ Rank       : {rank}\n"
+        f"🔗 Profile    : {profile_link}"
+    )
+    send_and_auto_delete(message.chat.id, text, parse_mode="Markdown")
+    
 # ===================== #
 #   FUN COMMANDS        #
 # ===================== #
