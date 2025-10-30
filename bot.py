@@ -331,6 +331,16 @@ def generate_html(message, name, celebration, birthdate, age, relation, msg_text
         document=file_obj,
         caption=f"🎁 Here’s your personalized gift card for {name}! 🎉"
     )
+# ===================== #
+#     OTHER COMMANDS
+# ===================== #
+@bot.message_handler(commands=['balance'])
+def check_balance(message):
+    user = message.from_user
+    bal = user_balance.get(user.id, 0)
+    balance_text = "💎 Unlimited" if bal == float('inf') else f"💰 {bal:,}"  # adds commas for readability
+
+    text = (
         "╔══════════════════════════╗\n"
         "       👑 CRIS TOOL 👑\n"
         "╚══════════════════════════╝\n\n"
