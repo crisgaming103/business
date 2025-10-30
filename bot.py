@@ -200,20 +200,20 @@ def generate_birthday_html(message, name, birthdate, age, relation, image_url):
 <head><meta charset='UTF-8'><title>🎉 {name}'s Birthday!</title>
 <style>
 body {{
-    font-family:'Comic Sans MS';
+       font-family: 'Comic Sans MS', cursive, sans-serif;
     background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed;
     background-size: cover;
     display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
 }}
 .container {{
     background: rgba(255,255,255,0.85);
-    padding:40px; border-radius:20px; text-align:center; max-width:500px;
+    padding:200px; border-radius:20px; text-align:center; max-width:500px;
     border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff69b4; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:16px; }}
-.message-box {{ background:#ffe4e1; padding:20px; border-radius:15px; margin-bottom:20px; font-size:18px; }}
-.from {{ font-style:italic; font-size:14px; }}
+.details {{ margin-bottom:20px; font-size:40px; }}
+.message-box {{ background:#ffe4e1; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:46px; }}
+.from {{ font-style:italic; font-size:40px; }}
 </style>
 </head>
 <body>
@@ -255,20 +255,20 @@ def generate_graduation_html(message, name, grad_date, image_url):
 <head><meta charset='UTF-8'><title>🎓 {name}'s Graduation!</title>
 <style>
 body {{
-    font-family:'Comic Sans MS';
+       font-family: 'Comic Sans MS', cursive, sans-serif;
     background: url('https://i.ibb.co/rfvTqWgR/images-3.jpg') no-repeat center center fixed;
     background-size: cover;
     display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
 }}
 .container {{
     background: rgba(255,255,255,0.85);
-    padding:40px; border-radius:20px; text-align:center; max-width:500px;
+    padding:200px; border-radius:20px; text-align:center; max-width:500px;
     border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #00aaff; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:16px; }}
-.message-box {{ background:#d1f0ff; padding:20px; border-radius:15px; margin-bottom:20px; font-size:18px; }}
-.from {{ font-style:italic; font-size:14px; }}
+.details {{ margin-bottom:20px; font-size:40px; }}
+.message-box {{ background:#d1f0ff; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:44px; }}
+.from {{ font-style:italic; font-size:40px; }}
 </style>
 </head>
 <body>
@@ -322,7 +322,7 @@ body {{
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
 .details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#fff2cc; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:18px; }}
+.message-box {{ background:#fff2cc; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:48px; }}
 .from {{ font-style:italic; font-size:48px; }}
 </style>
 </head>
@@ -577,35 +577,19 @@ def unmute_user(message):
         return
 
     # Restore full permissions
-    bot.restrict_chat_member(
-        message.chat.id,
-        user_id,
-        permissions=ChatPermissions(
-            can_send_messages=True,
-            can_send_media_messages=True,
-            can_send_other_messages=True,
-            can_add_web_page_previews=True
-        )
+    permissions = ChatPermissions(
+        can_send_messages=True,
+        can_send_media_messages=True,
+        can_send_polls=True,
+        can_send_other_messages=True,
+        can_add_web_page_previews=True,
+        can_change_info=True,
+        can_invite_users=True,
+        can_pin_messages=True
     )
 
+    bot.restrict_chat_member(message.chat.id, user_id, permissions=permissions)
     bot.reply_to(message, f"🔊 User [{user_id}](tg://user?id={user_id}) has been unmuted.", parse_mode="Markdown")
-
-@bot.message_handler(commands=['unwarn'])
-def unwarn_user(message):
-    if not is_admin_or_owner(message.chat.id, message.from_user.id):
-        return send_and_auto_delete(message.chat.id, "🚫 You don’t have permission.")
-    target = extract_user(message)
-    if not target:
-        return send_and_auto_delete(message.chat.id, "⚠️ Reply or use /unwarn <user_id>")
-    user_warnings[target.id] = max(0, user_warnings.get(target.id, 0) - 1)
-    send_and_auto_delete(message.chat.id, f"✅ {target.first_name}'s warning removed ({user_warnings[target.id]} left).")
-
-# ===================== #
-#   BASIC COMMANDS      #
-# ===================== #
-@bot.message_handler(commands=['start'])
-def start(message):
-    send_and_auto_delete(message.chat.id, f"👋 Hello {message.from_user.first_name}!\nWelcome to **Cris Bot** — your King Rank assistant.\nUse /help to see commands.", parse_mode="Markdown")
 
 @bot.message_handler(commands=['help'])
 def help_cmd(message):
