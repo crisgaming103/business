@@ -129,80 +129,120 @@ def menu(message):
     
 
 @bot.message_handler(commands=['html'])
-def generate_html(message):
-    user = message.from_user
+def ask_name(message):
+    bot.reply_to(message, "🎂 Please enter the *name* of the celebrant:", parse_mode="Markdown")
+    bot.register_next_step_handler(message, ask_birthdate)
 
-    # Check if command is in a group
-    if message.chat.type in ['group', 'supergroup']:
-        send_and_auto_delete(
-            message.chat.id,
-            f"⚠️ {user.first_name}, you used /html in a group. "
-            "Your basic HTML page has been sent to your private chat instead."
-        )
+def ask_birthdate(message):
+    name = message.text.strip()
+    msg = bot.reply_to(message, f"📅 Nice! Now enter the *birthdate* of {name} (format: YYYY-MM-DD):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, ask_age, name)
 
-    username = f"@{user.username}" if user.username else "N/A"
+def ask_age(message, name):
+    birthdate = message.text.strip()
+    msg = bot.reply_to(message, "🎈 Great! Enter the *age* of the celebrant:", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, ask_message, name, birthdate)
+
+def ask_message(message, name, birthdate):
+    age = message.text.strip()
+    msg = bot.reply_to(message, "💌 Finally, enter your *birthday message* (what should appear on the gift card):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, generate_html, name, birthdate, age)
+
+def generate_html(message, name, birthdate, age):
+    import io, datetime
+    bday_message = message.text.strip()
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    is_birthday = "🎉 TODAY is the special day!" if today == birthdate else "🎁 Countdown to the big day!"
 
     html_code = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Hello {user.first_name}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎂 Happy Birthday {name}!</title>
 <style>
   body {{
+    margin: 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background: linear-gradient(270deg, #ff0000, #ff8800, #00aaff, #8a2be2);
-    background-size: 600% 600%;
-    animation: gradient 15s ease infinite;
-    font-family: Arial, sans-serif;
-    color: white;
+    font-family: 'Comic Sans MS', cursive;
+  }}
+  .card {{
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+    padding: 40px;
     text-align: center;
+    z-index: 2;
+    position: relative;
   }}
-
   h1 {{
+    color: #ff69b4;
     font-size: 3em;
-    animation: bounce 2s infinite;
   }}
-
   p {{
-    font-size: 1.5em;
+    font-size: 1.2em;
+    color: #555;
   }}
-
-  @keyframes gradient {{
-    0% {{background-position: 0% 50%;}}
-    50% {{background-position: 100% 50%;}}
-    100% {{background-position: 0% 50%;}}
+  .balloon {{
+    position: absolute;
+    bottom: -150px;
+    width: 60px;
+    height: 80px;
+    background: radial-gradient(circle at 30% 30%, #ffb6c1, #ff69b4);
+    border-radius: 60% 60% 60% 60%;
+    animation: float 6s ease-in-out infinite;
   }}
-
-  @keyframes bounce {{
-    0%, 100% {{transform: translateY(0);}}
-    50% {{transform: translateY(-20px);}}
+  .balloon::after {{
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 100px;
+    background: #666;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+  }}
+  @keyframes float {{
+    0% {{ transform: translateY(0) rotate(0deg); opacity: 1; }}
+    50% {{ transform: translateY(-300px) rotate(10deg); opacity: 0.9; }}
+    100% {{ transform: translateY(-600px) rotate(-10deg); opacity: 0; }}
   }}
 </style>
 </head>
 <body>
-  <div>
-    <h1>Hello {user.first_name}!</h1>
-    <p>Username: {username}</p>
-    <p>Telegram ID: {user.id}</p>
-    <p>Welcome to CrisGaming! 🎮</p>
+  <div class="card">
+    <h1>🎂 Happy Birthday, {name}!</h1>
+    <p>Age: <b>{age}</b></p>
+    <p>Birthdate: <b>{birthdate}</b></p>
+    <p>{is_birthday}</p>
+    <hr style="margin:20px 0;">
+    <h3>💌 Your Message:</h3>
+    <p>{bday_message}</p>
+    <h2>🎉 From CrisGaming Bot 💖</h2>
   </div>
+
+  <!-- Floating Balloons -->
+  <div class="balloon" style="left:10%; animation-delay:0s;"></div>
+  <div class="balloon" style="left:30%; animation-delay:2s; background:radial-gradient(circle at 30% 30%, #ffe680, #ffcc00);"></div>
+  <div class="balloon" style="left:50%; animation-delay:1s; background:radial-gradient(circle at 30% 30%, #b0e0e6, #00bfff);"></div>
+  <div class="balloon" style="left:70%; animation-delay:3s; background:radial-gradient(circle at 30% 30%, #98fb98, #32cd32);"></div>
+  <div class="balloon" style="left:90%; animation-delay:4s; background:radial-gradient(circle at 30% 30%, #dda0dd, #ba55d3);"></div>
 </body>
 </html>
 """
 
     file_obj = io.BytesIO(html_code.encode('utf-8'))
-    file_obj.name = "crisgaming_hello.html"
-
-    # Send the HTML file directly to the user in private
+    file_obj.name = f"happy_birthday_{name.lower().replace(' ', '_')}.html"
     bot.send_document(
-        chat_id=user.id,
+        chat_id=message.chat.id,
         document=file_obj,
-        caption="✅ Here's your personalized animated HTML page!"
+        caption=f"🎁 Here’s your personalized birthday gift card for {name}! 🎉"
     )
 # ===================== #
 #     OTHER COMMANDS
