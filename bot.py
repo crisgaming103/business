@@ -193,135 +193,113 @@ def ask_birthday_message(message, name, birthdate, age, relation):
     bot.register_next_step_handler(sent, generate_birthday_html, name, birthdate, age, relation, image_url)
 
 
+# Birthday
 def generate_birthday_html(message, name, birthdate, age, relation, image_url):
     msg_text = message.text.strip()
-    title = f"🎉 Happy Birthday, {name}!"
     html_code = f"""<!DOCTYPE html>
 <html lang='en'>
-<head><meta charset='UTF-8'><title>{title}</title>
+<head><meta charset='UTF-8'><title>🎉 {name}'s Birthday!</title>
 <style>
-body {{ font-family:'Comic Sans MS'; background: linear-gradient(135deg,#ff9a9e,#fad0c4); text-align:center; }}
-.card {{ padding:40px; margin:50px auto; background:white; border-radius:20px; box-shadow:0 0 40px rgba(255,105,180,.5); }}
+body {{
+    font-family:'Comic Sans MS';
+    background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
+}}
+.container {{
+    background: rgba(255,255,255,0.85);
+    padding:40px; border-radius:20px; text-align:center; max-width:500px;
+    border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
+}}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff69b4; margin-bottom:20px; }}
+.details {{ margin-bottom:20px; font-size:16px; }}
+.message-box {{ background:#ffe4e1; padding:20px; border-radius:15px; margin-bottom:20px; font-size:18px; }}
+.from {{ font-style:italic; font-size:14px; }}
 </style>
 </head>
 <body>
-<div class='card'>
-<img src='{image_url}' alt='{name}' loading='lazy'>
-<h1>{title}</h1>
-<h2>For {name}</h2>
-<p>Birthdate: {birthdate}</p>
-<p>Age Turning: {age}</p>
-<p>Relation: {relation}</p>
-<p>{msg_text}</p>
+<div class="container">
+<img src="{image_url}" alt="{name}" loading="lazy">
+<h1>🎉 Happy Birthday, {name}!</h1>
+<div class="details">
+<p>For: {name}</p><p>Birthdate: {birthdate}</p><p>Age Turning: {age}</p><p>Relation: {relation}</p>
 </div>
-</body>
-</html>"""
+<div class="message-box"><p>{msg_text}</p></div>
+<div class="from"><p>From: Your Friend</p></div>
+</div></body></html>"""
     send_html_file(message.chat.id, html_code, name)
 
-
-# --- Graduation Flow ---
-def ask_graduation_date(message):
-    name = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"📅 Enter the graduation date for {name} (YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_graduation_image, name)
-
-
-def ask_graduation_image(message, name):
-    grad_date = message.text.strip()
-    sent = bot.send_message(message.chat.id, "📸 Upload or send the image link of the graduate (jpg/png):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_graduation_message, name, grad_date)
-
-
-def ask_graduation_message(message, name, grad_date):
-    image_url = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"💌 Enter your congratulatory message for {name}:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, generate_graduation_html, name, grad_date, image_url)
-
-
+# Graduation
 def generate_graduation_html(message, name, grad_date, image_url):
     msg_text = message.text.strip()
-    title = f"🎓 Happy Graduation Day, {name}! Congratulations!"
     html_code = f"""<!DOCTYPE html>
 <html lang='en'>
-<head><meta charset='UTF-8'><title>{title}</title>
+<head><meta charset='UTF-8'><title>🎓 {name}'s Graduation!</title>
 <style>
-body {{ font-family:'Comic Sans MS'; background: linear-gradient(135deg,#00aaff,#8a2be2); text-align:center; }}
-.card {{ padding:40px; margin:50px auto; background:white; border-radius:20px; box-shadow:0 0 40px rgba(0,170,255,.5); }}
+body {{
+    font-family:'Comic Sans MS';
+    background: url('https://i.ibb.co/rfvTqWgR/images-3.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
+}}
+.container {{
+    background: rgba(255,255,255,0.85);
+    padding:40px; border-radius:20px; text-align:center; max-width:500px;
+    border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
+}}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #00aaff; margin-bottom:20px; }}
+.details {{ margin-bottom:20px; font-size:16px; }}
+.message-box {{ background:#d1f0ff; padding:20px; border-radius:15px; margin-bottom:20px; font-size:18px; }}
+.from {{ font-style:italic; font-size:14px; }}
 </style>
 </head>
 <body>
-<div class='card'>
-<img src='{image_url}' alt='{name}' loading='lazy'>
-<h1>{title}</h1>
-<p>Graduation Date: {grad_date}</p>
-<p>{msg_text}</p>
+<div class="container">
+<img src="{image_url}" alt="{name}" loading="lazy">
+<h1>🎓 Happy Graduation Day, {name}!</h1>
+<div class="details">
+<p>Graduate: {name}</p><p>Graduation Date: {grad_date}</p>
 </div>
-</body>
-</html>"""
+<div class="message-box"><p>{msg_text}</p></div>
+<div class="from"><p>From: Your Friend</p></div>
+</div></body></html>"""
     send_html_file(message.chat.id, html_code, name)
 
-
-# --- Wedding Flow ---
-def ask_wedding_date(message):
-    couple_name = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"📅 Enter the wedding date for {couple_name} (YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_wedding_image, couple_name)
-
-
-def ask_wedding_image(message, couple_name):
-    wedding_date = message.text.strip()
-    sent = bot.send_message(message.chat.id, "📸 Upload or send the image link of the couple (jpg/png):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_wedding_message, couple_name, wedding_date)
-
-
-def ask_wedding_message(message, couple_name, wedding_date):
-    image_url = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"💌 Enter your wedding message for {couple_name}:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, generate_wedding_html, couple_name, wedding_date, image_url)
-
-
+# Wedding
 def generate_wedding_html(message, couple_name, wedding_date, image_url):
     msg_text = message.text.strip()
-    title = f"💍 Happy Wedding Day to both of you! Congratulations!"
     html_code = f"""<!DOCTYPE html>
 <html lang='en'>
-<head><meta charset='UTF-8'><title>{title}</title>
+<head><meta charset='UTF-8'><title>💍 {couple_name}'s Wedding!</title>
 <style>
-body {{ font-family:'Comic Sans MS'; background: linear-gradient(135deg,#ff8800,#ffd700); text-align:center; }}
-.card {{ padding:40px; margin:50px auto; background:white; border-radius:20px; box-shadow:0 0 40px rgba(255,136,0,.5); }}
+body {{
+    font-family:'Comic Sans MS';
+    background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
+}}
+.container {{
+    background: rgba(255,255,255,0.85);
+    padding:40px; border-radius:20px; text-align:center; max-width:500px;
+    border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
+}}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
+.details {{ margin-bottom:20px; font-size:16px; }}
+.message-box {{ background:#fff2cc; padding:20px; border-radius:15px; margin-bottom:20px; font-size:18px; }}
+.from {{ font-style:italic; font-size:14px; }}
 </style>
 </head>
 <body>
-<div class='card'>
-<img src='{image_url}' alt='{couple_name}' loading='lazy'>
-<h1>{title}</h1>
-<p>Wedding Date: {wedding_date}</p>
-<p>{msg_text}</p>
+<div class="container">
+<img src="{image_url}" alt="{couple_name}" loading="lazy">
+<h1>💍 Happy Wedding Day, {couple_name}!</h1>
+<div class="details">
+<p>Couple: {couple_name}</p><p>Wedding Date: {wedding_date}</p>
 </div>
-</body>
-</html>"""
+<div class="message-box"><p>{msg_text}</p></div>
+<div class="from"><p>From: Your Friend</p></div>
+</div></body></html>"""
     send_html_file(message.chat.id, html_code, couple_name)
-
-
-# --- Helper to send HTML ---
-def send_html_file(chat_id, html_code, name):
-    import io
-    file_obj = io.BytesIO(html_code.encode('utf-8'))
-    file_obj.name = f"giftcard_{name.lower().replace(' ','_')}.html"
-    sent = bot.send_document(chat_id, file_obj, caption=f"🎁 Gift card for {name}")
-    schedule_delete(chat_id, sent.message_id)
-
-
-def schedule_delete(chat_id, message_id):
-    import threading, time
-    def delete_later():
-        time.sleep(3600)
-        try: bot.delete_message(chat_id, message_id)
-        except: pass
-    threading.Thread(target=delete_later).start()
     
 # ===================== #
 #     OTHER COMMANDS
