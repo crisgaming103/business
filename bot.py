@@ -156,14 +156,23 @@ def ask_relation(message, name, celebration, birthdate):
 def ask_message(message, name, celebration, birthdate, age):
     relation = message.text.strip()
     msg = bot.reply_to(message, "💌 Enter your *message to the celebrant*:", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, ask_from, name, celebration, birthdate, age, relation)
+    bot.register_next_step_handler(msg, ask_image, name, celebration, birthdate, age, relation)
 
-def ask_from(message, name, celebration, birthdate, age, relation):
+def ask_image(message, name, celebration, birthdate, age, relation):
     msg_text = message.text.strip()
-    msg = bot.reply_to(message, "✍️ Finally, who is this gift card *from*? (Enter your name):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, generate_html, name, celebration, birthdate, age, relation, msg_text)
+    msg = bot.reply_to(message,
+        "🖼️ Please host the celebrant’s image here first:\n👉 https://host-image-puce.vercel.app/\n\n"
+        "Then send me the *direct image link* (ending in .jpg, .png, etc.):",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(msg, ask_from, name, celebration, birthdate, age, relation, msg_text)
 
-def generate_html(message, name, celebration, birthdate, age, relation, msg_text):
+def ask_from(message, name, celebration, birthdate, age, relation, msg_text):
+    image_url = message.text.strip()
+    msg = bot.reply_to(message, "✍️ Finally, who is this gift card *from*? (Enter your name):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, generate_html, name, celebration, birthdate, age, relation, msg_text, image_url)
+
+def generate_html(message, name, celebration, birthdate, age, relation, msg_text, image_url):
     from_name = message.text.strip()
     import io, datetime
     today = datetime.date.today().strftime("%Y-%m-%d")
@@ -197,6 +206,7 @@ def generate_html(message, name, celebration, birthdate, age, relation, msg_text
     border: 6px solid;
     border-image: linear-gradient(45deg, #ff0000, #ff8800, #00aaff, #8a2be2) 1;
     animation: pulse 3s infinite alternate;
+    max-width: 500px;
   }}
   @keyframes pulse {{
     0% {{ box-shadow: 0 0 20px rgba(255, 105, 180, 0.6); }}
@@ -204,7 +214,7 @@ def generate_html(message, name, celebration, birthdate, age, relation, msg_text
   }}
   h1 {{
     color: #ff69b4;
-    font-size: 3em;
+    font-size: 2.5em;
   }}
   h2 {{
     color: #ff69b4;
@@ -214,13 +224,22 @@ def generate_html(message, name, celebration, birthdate, age, relation, msg_text
     font-size: 1.2em;
     color: #555;
   }}
+  img {{
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #ff69b4;
+    margin-bottom: 15px;
+    box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+  }}
   .balloon {{
     position: absolute;
     bottom: -150px;
     width: 60px;
     height: 80px;
     background: radial-gradient(circle at 30% 30%, #ffb6c1, #ff69b4);
-    border-radius: 60% 60% 60% 60%;
+    border-radius: 60%;
     animation: float 6s ease-in-out infinite;
   }}
   .balloon::after {{
@@ -242,6 +261,7 @@ def generate_html(message, name, celebration, birthdate, age, relation, msg_text
 </head>
 <body>
   <div class="card">
+    <img src="{image_url}" alt="Celebrant Photo">
     <h1>🎂 {celebration}</h1>
     <h2>For {name}</h2>
     <p>Age Turning: <b>{age}</b></p>
@@ -264,6 +284,7 @@ def generate_html(message, name, celebration, birthdate, age, relation, msg_text
 </body>
 </html>"""
 
+    import io
     file_obj = io.BytesIO(html_code.encode('utf-8'))
     safe_name = name.lower().replace(' ', '_')
     file_obj.name = f"giftcard_{safe_name}.html"
