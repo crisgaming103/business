@@ -219,7 +219,7 @@ body {{
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff69b4; margin-bottom:20px; }}
 .details {{ margin-bottom:20px; font-size:40px; }}
 .message-box {{ background:#ffe4e1; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:46px; }}
-.from {{ font-style:italic; font-size:40px; }}
+.from {{ font-style:italic; font-size:48px; }}
 </style>
 </head>
 <body>
@@ -286,8 +286,8 @@ body {{
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #00aaff; margin-bottom:20px; }}
 .details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#d1f0ff; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:44px; }}
-.from {{ font-style:italic; font-size:40px; }}
+.message-box {{ background:#d1f0ff; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:48px; }}
+.from {{ font-style:italic; font-size:48px; }}
 </style>
 </head>
 <body>
