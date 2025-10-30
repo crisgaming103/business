@@ -310,20 +310,20 @@ def generate_wedding_html(message, couple_name, wedding_date, image_url):
 <head><meta charset='UTF-8'><title>💍 {couple_name}'s Wedding!</title>
 <style>
 body {{
-    font-family:'Comic Sans MS';
+       font-family: 'Comic Sans MS', cursive, sans-serif;
     background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed;
     background-size: cover;
     display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
 }}
 .container {{
     background: rgba(255,255,255,0.85);
-    padding:40px; border-radius:20px; text-align:center; max-width:500px;
+    padding: 200px; border-radius:20px; text-align:center; max-width:500px;
     border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:16px; }}
-.message-box {{ background:#fff2cc; padding:20px; border-radius:15px; margin-bottom:20px; font-size:18px; }}
-.from {{ font-style:italic; font-size:14px; }}
+.details {{ margin-bottom:20px; font-size:40px; }}
+.message-box {{ background:#fff2cc; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:18px; }}
+.from {{ font-style:italic; font-size:48px; }}
 </style>
 </head>
 <body>
