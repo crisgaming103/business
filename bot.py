@@ -131,36 +131,50 @@ def menu(message):
 @bot.message_handler(commands=['html'])
 def ask_name(message):
     bot.reply_to(message, "🎂 Please enter the *name* of the celebrant:", parse_mode="Markdown")
-    bot.register_next_step_handler(message, ask_birthdate)
+    bot.register_next_step_handler(message, ask_celebration)
 
-def ask_birthdate(message):
+def ask_celebration(message):
     name = message.text.strip()
-    msg = bot.reply_to(message, f"📅 Nice! Now enter the *birthdate* of {name} (format: YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, ask_age, name)
+    msg = bot.reply_to(message, f"🎉 What is {name}'s celebration? (e.g., 18th Birthday, Wedding, Graduation):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, ask_birthdate, name)
 
-def ask_age(message, name):
+def ask_birthdate(message, name):
+    celebration = message.text.strip()
+    msg = bot.reply_to(message, f"📅 Enter the *birthdate* of {name} (format: YYYY-MM-DD):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, ask_age, name, celebration)
+
+def ask_age(message, name, celebration):
     birthdate = message.text.strip()
-    msg = bot.reply_to(message, "🎈 Great! Enter the *age* of the celebrant:", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, ask_message, name, birthdate)
+    msg = bot.reply_to(message, "🎈 Enter the *age when birthday comes*:", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, ask_relation, name, celebration, birthdate)
 
-def ask_message(message, name, birthdate):
+def ask_relation(message, name, celebration, birthdate):
     age = message.text.strip()
-    msg = bot.reply_to(message, "💌 Finally, enter your *birthday message* (what should appear on the gift card):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, generate_html, name, birthdate, age)
+    msg = bot.reply_to(message, f"❤️ What is your *relation* to {name}? (e.g., Friend, Cousin, Sibling):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, ask_message, name, celebration, birthdate, age)
 
-def generate_html(message, name, birthdate, age):
+def ask_message(message, name, celebration, birthdate, age):
+    relation = message.text.strip()
+    msg = bot.reply_to(message, "💌 Enter your *message to the celebrant*:", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, ask_from, name, celebration, birthdate, age, relation)
+
+def ask_from(message, name, celebration, birthdate, age, relation):
+    msg_text = message.text.strip()
+    msg = bot.reply_to(message, "✍️ Finally, who is this gift card *from*? (Enter your name):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, generate_html, name, celebration, birthdate, age, relation, msg_text)
+
+def generate_html(message, name, celebration, birthdate, age, relation, msg_text):
+    from_name = message.text.strip()
     import io, datetime
-    bday_message = message.text.strip()
     today = datetime.date.today().strftime("%Y-%m-%d")
     is_birthday = "🎉 TODAY is the special day!" if today == birthdate else "🎁 Countdown to the big day!"
 
-    html_code = f"""
-<!DOCTYPE html>
+    html_code = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎂 Happy Birthday {name}!</title>
+<title>🎂 {celebration} - {name}</title>
 <style>
   body {{
     margin: 0;
@@ -175,15 +189,26 @@ def generate_html(message, name, birthdate, age):
   .card {{
     background: white;
     border-radius: 20px;
-    box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
     padding: 40px;
     text-align: center;
-    z-index: 2;
     position: relative;
+    z-index: 2;
+    box-shadow: 0 0 40px rgba(255, 105, 180, 0.5);
+    border: 6px solid;
+    border-image: linear-gradient(45deg, #ff0000, #ff8800, #00aaff, #8a2be2) 1;
+    animation: pulse 3s infinite alternate;
+  }}
+  @keyframes pulse {{
+    0% {{ box-shadow: 0 0 20px rgba(255, 105, 180, 0.6); }}
+    100% {{ box-shadow: 0 0 60px rgba(255, 105, 180, 1); }}
   }}
   h1 {{
     color: #ff69b4;
     font-size: 3em;
+  }}
+  h2 {{
+    color: #ff69b4;
+    margin-top: 10px;
   }}
   p {{
     font-size: 1.2em;
@@ -217,14 +242,17 @@ def generate_html(message, name, birthdate, age):
 </head>
 <body>
   <div class="card">
-    <h1>🎂 Happy Birthday, {name}!</h1>
-    <p>Age: <b>{age}</b></p>
+    <h1>🎂 {celebration}</h1>
+    <h2>For {name}</h2>
+    <p>Age Turning: <b>{age}</b></p>
     <p>Birthdate: <b>{birthdate}</b></p>
+    <p>Relation: <b>{relation}</b></p>
     <p>{is_birthday}</p>
     <hr style="margin:20px 0;">
-    <h3>💌 Your Message:</h3>
-    <p>{bday_message}</p>
-    <h2>🎉 From CrisGaming Bot 💖</h2>
+    <h3>💌 Message:</h3>
+    <p>{msg_text}</p>
+    <br>
+    <h3>🎁 From: <b>{from_name}</b></h3>
   </div>
 
   <!-- Floating Balloons -->
@@ -234,11 +262,11 @@ def generate_html(message, name, birthdate, age):
   <div class="balloon" style="left:70%; animation-delay:3s; background:radial-gradient(circle at 30% 30%, #98fb98, #32cd32);"></div>
   <div class="balloon" style="left:90%; animation-delay:4s; background:radial-gradient(circle at 30% 30%, #dda0dd, #ba55d3);"></div>
 </body>
-</html>
-"""
+</html>"""
 
     file_obj = io.BytesIO(html_code.encode('utf-8'))
-    file_obj.name = f"happy_birthday_{name.lower().replace(' ', '_')}.html"
+    safe_name = name.lower().replace(' ', '_')
+    file_obj.name = f"giftcard_{safe_name}.html"
     bot.send_document(
         chat_id=message.chat.id,
         document=file_obj,
