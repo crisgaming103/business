@@ -128,6 +128,8 @@ def menu(message):
         
     
 
+
+# --- /html command handler ---
 @bot.message_handler(commands=['html'])
 def choose_celebration(message):
     if message.chat.type in ['group', 'supergroup']:
@@ -166,35 +168,31 @@ def ask_details_by_type(message):
 def ask_birthday_date(message):
     name = message.text.strip()
     sent = bot.send_message(message.chat.id, f"📅 Enter {name}'s birthday (YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_birthday_age, name)
+    bot.register_next_step_handler(sent, lambda m: ask_birthday_age(m, name))
 
 
 def ask_birthday_age(message, name):
     birthdate = message.text.strip()
     sent = bot.send_message(message.chat.id, f"🎈 Enter the age {name} will turn:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_birthday_relation, name, birthdate)
+    bot.register_next_step_handler(sent, lambda m: ask_birthday_relation(m, name, birthdate))
 
 
 def ask_birthday_relation(message, name, birthdate):
     age = message.text.strip()
     sent = bot.send_message(message.chat.id, f"❤️ What is your relation to {name}?", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_birthday_image, name, birthdate, age)
+    bot.register_next_step_handler(sent, lambda m: ask_birthday_image(m, name, birthdate, age))
 
 
-def ask_graduation_image(message, name):
-    grad_date = message.text.strip()
-    sent = bot.send_message(
-        message.chat.id,
-        "📸 Upload or send the image link of the graduate (jpg/png):\n\n"
-        "You can host your image here: https://host-image-puce.vercel.app/",
-        parse_mode="Markdown"
-    )
-    bot.register_next_step_handler(sent, ask_graduation_message, name, grad_date)
+def ask_birthday_image(message, name, birthdate, age):
+    relation = message.text.strip()
+    sent = bot.send_message(message.chat.id, "📸 Upload or send the image link of the celebrant (jpg/png):", parse_mode="Markdown")
+    bot.register_next_step_handler(sent, lambda m: ask_birthday_message(m, name, birthdate, age, relation))
+
 
 def ask_birthday_message(message, name, birthdate, age, relation):
     image_url = message.text.strip()
     sent = bot.send_message(message.chat.id, f"💌 Enter your birthday message for {name}:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, generate_birthday_html, name, birthdate, age, relation, image_url)
+    bot.register_next_step_handler(sent, lambda m: generate_birthday_html(m, name, birthdate, age, relation, image_url))
 
 
 def generate_birthday_html(message, name, birthdate, age, relation, image_url):
@@ -215,9 +213,9 @@ body {{
     border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff69b4; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:44px; }}
+.details {{ margin-bottom:20px; font-size:40px; }}
 .message-box {{ background:#ffe4e1; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:46px; }}
-.from {{ font-style:italic; font-size:48px; }}
+.from {{ font-style:italic; font-size:40px; }}
 </style>
 </head>
 <body>
@@ -228,8 +226,7 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 <p>For: {name}</p><p>Birthdate: {birthdate}</p><p>Age Turning: {age}</p><p>Relation: {relation}</p>
 </div>
 <div class="message-box"><p>{msg_text}</p></div>
-<div class="from">
-    <p>From: {sender_name} ({relation})</p>
+   <p>From: {sender_name} ({relation})</p>
 </div>
 </div></body></html>"""
     send_html_file(message.chat.id, html_code, name)
@@ -239,47 +236,33 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 def ask_graduation_date(message):
     name = message.text.strip()
     sent = bot.send_message(message.chat.id, f"📅 Enter the graduation date for {name} (YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_graduation_image, name)
+    bot.register_next_step_handler(sent, lambda m: ask_graduation_relation(m, name))
 
 
-def ask_graduation_image(message, name):
+def ask_graduation_relation(message, name):
     grad_date = message.text.strip()
-    sent = bot.send_message(
-        message.chat.id,
-        "📸 Upload or send the image link of the graduate (jpg/png):\n\n"
-        "You can host your image here: https://host-image-puce.vercel.app/",
-        parse_mode="Markdown"
-    )
-    bot.register_next_step_handler(sent, ask_graduation_message, name, grad_date)
+    sent = bot.send_message(message.chat.id, f"❤️ What is your relation to {name}?", parse_mode="Markdown")
+    bot.register_next_step_handler(sent, lambda m: ask_graduation_image(m, name, grad_date, m.text.strip()))
 
 
-def ask_graduation_message(message, name, grad_date):
+def ask_graduation_image(message, name, grad_date, relation):
     image_url = message.text.strip()
     sent = bot.send_message(message.chat.id, f"💌 Enter your congratulatory message for {name}:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, generate_graduation_html, name, grad_date, image_url)
+    bot.register_next_step_handler(sent, lambda m: generate_graduation_html(m, name, grad_date, relation, image_url))
 
 
-def generate_graduation_html(message, name, grad_date, image_url):
+def generate_graduation_html(message, name, grad_date, relation, image_url):
     msg_text = message.text.strip()
     html_code = f"""<!DOCTYPE html>
 <html lang='en'>
 <head><meta charset='UTF-8'><title>🎓 {name}'s Graduation!</title>
 <style>
-body {{
-       font-family: 'Comic Sans MS', cursive, sans-serif;
-    background: url('https://i.ibb.co/rfvTqWgR/images-3.jpg') no-repeat center center fixed;
-    background-size: cover;
-    display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
-}}
-.container {{
-    background: rgba(255,255,255,0.85);
-    padding:200px; border-radius:20px; text-align:center; max-width:500px;
-    border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
-}}
+body {{ font-family: 'Comic Sans MS', cursive, sans-serif; background: url('https://i.ibb.co/rfvTqWgR/images-3.jpg') no-repeat center center fixed; background-size: cover; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }}
+.container {{ background: rgba(255,255,255,0.85); padding:200px; border-radius:20px; text-align:center; max-width:500px; border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1; }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #00aaff; margin-bottom:20px; }}
 .details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#d1f0ff; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:48px; }}
-.from {{ font-style:italic; font-size:48px; }}
+.message-box {{ background:#d1f0ff; padding: 60px 40px; border-radius:15px; margin-bottom:20px; font-size:44px; }}
+.from {{ font-style:italic; font-size:40px; }}
 </style>
 </head>
 <body>
@@ -287,12 +270,11 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 <img src="{image_url}" alt="{name}" loading="lazy">
 <h1>🎓 Happy Graduation Day, {name}!</h1>
 <div class="details">
-<p>Graduate: {name}</p><p>Graduation Date: {grad_date}</p>
+<p>Graduate: {name}</p><p>Graduation Date: {grad_date}</p><p>Relation: {relation}</p>
 </div>
 <div class="message-box"><p>{msg_text}</p></div>
-<div class="from">
-    <p>From: {sender_name} ({relation})</p>
-</div>
+   <p>From: {sender_name} ({relation})</p>
+</div>>
 </div></body></html>"""
     send_html_file(message.chat.id, html_code, name)
 
@@ -301,46 +283,32 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 def ask_wedding_date(message):
     couple_name = message.text.strip()
     sent = bot.send_message(message.chat.id, f"📅 Enter the wedding date for {couple_name} (YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_wedding_image, couple_name)
+    bot.register_next_step_handler(sent, lambda m: ask_wedding_relation(m, couple_name))
 
 
-def ask_graduation_image(message, name):
-    grad_date = message.text.strip()
-    sent = bot.send_message(
-        message.chat.id,
-        "📸 Upload or send the image link of the graduate (jpg/png):\n\n"
-        "You can host your image here: https://host-image-puce.vercel.app/",
-        parse_mode="Markdown"
-    )
-    bot.register_next_step_handler(sent, ask_graduation_message, name, grad_date)
+def ask_wedding_relation(message, couple_name):
+    wedding_date = message.text.strip()
+    sent = bot.send_message(message.chat.id, f"❤️ What is your relation to {couple_name}?", parse_mode="Markdown")
+    bot.register_next_step_handler(sent, lambda m: ask_wedding_image(m, couple_name, wedding_date, m.text.strip()))
 
 
-def ask_wedding_message(message, couple_name, wedding_date):
+def ask_wedding_image(message, couple_name, wedding_date, relation):
     image_url = message.text.strip()
     sent = bot.send_message(message.chat.id, f"💌 Enter your wedding message for {couple_name}:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, generate_wedding_html, couple_name, wedding_date, image_url)
+    bot.register_next_step_handler(sent, lambda m: generate_wedding_html(m, couple_name, wedding_date, relation, image_url))
 
 
-def generate_wedding_html(message, couple_name, wedding_date, image_url):
+def generate_wedding_html(message, couple_name, wedding_date, relation, image_url):
     msg_text = message.text.strip()
     html_code = f"""<!DOCTYPE html>
 <html lang='en'>
 <head><meta charset='UTF-8'><title>💍 {couple_name}'s Wedding!</title>
 <style>
-body {{
-       font-family: 'Comic Sans MS', cursive, sans-serif;
-    background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed;
-    background-size: cover;
-    display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
-}}
-.container {{
-    background: rgba(255,255,255,0.85);
-    padding: 200px; border-radius:20px; text-align:center; max-width:500px;
-    border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
-}}
+body {{ font-family: 'Comic Sans MS', cursive, sans-serif; background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed; background-size: cover; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }}
+.container {{ background: rgba(255,255,255,0.85); padding:200px; border-radius:20px; text-align:center; max-width:500px; border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1; }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
 .details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#fff2cc; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:48px; }}
+.message-box {{ background:#fff2cc; padding: 60px 40px; border-radius:15px; margin-bottom:20px; font-size:48px; }}
 .from {{ font-style:italic; font-size:48px; }}
 </style>
 </head>
@@ -349,7 +317,7 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 <img src="{image_url}" alt="{couple_name}" loading="lazy">
 <h1>💍 Happy Wedding Day, {couple_name}!</h1>
 <div class="details">
-<p>Couple: {couple_name}</p><p>Wedding Date: {wedding_date}</p>
+<p>Couple: {couple_name}</p><p>Wedding Date: {wedding_date}</p><p>Relation: {relation}</p>
 </div>
 <div class="message-box"><p>{msg_text}</p></div>
 <div class="from">
@@ -371,10 +339,14 @@ def send_html_file(chat_id, html_code, name):
 def schedule_delete(chat_id, message_id):
     def delete_later():
         time.sleep(3600)
-        try: bot.delete_message(chat_id, message_id)
-        except: pass
+        try:
+            bot.delete_message(chat_id, message_id)
+        except:
+            pass
     threading.Thread(target=delete_later).start()
 
+
+bot.polling()
 
     
 # ===================== #
@@ -597,19 +569,35 @@ def unmute_user(message):
         return
 
     # Restore full permissions
-    permissions = ChatPermissions(
-        can_send_messages=True,
-        can_send_media_messages=True,
-        can_send_polls=True,
-        can_send_other_messages=True,
-        can_add_web_page_previews=True,
-        can_change_info=True,
-        can_invite_users=True,
-        can_pin_messages=True
+    bot.restrict_chat_member(
+        message.chat.id,
+        user_id,
+        permissions=ChatPermissions(
+            can_send_messages=True,
+            can_send_media_messages=True,
+            can_send_other_messages=True,
+            can_add_web_page_previews=True
+        )
     )
 
-    bot.restrict_chat_member(message.chat.id, user_id, permissions=permissions)
     bot.reply_to(message, f"🔊 User [{user_id}](tg://user?id={user_id}) has been unmuted.", parse_mode="Markdown")
+
+@bot.message_handler(commands=['unwarn'])
+def unwarn_user(message):
+    if not is_admin_or_owner(message.chat.id, message.from_user.id):
+        return send_and_auto_delete(message.chat.id, "🚫 You don’t have permission.")
+    target = extract_user(message)
+    if not target:
+        return send_and_auto_delete(message.chat.id, "⚠️ Reply or use /unwarn <user_id>")
+    user_warnings[target.id] = max(0, user_warnings.get(target.id, 0) - 1)
+    send_and_auto_delete(message.chat.id, f"✅ {target.first_name}'s warning removed ({user_warnings[target.id]} left).")
+
+# ===================== #
+#   BASIC COMMANDS      #
+# ===================== #
+@bot.message_handler(commands=['start'])
+def start(message):
+    send_and_auto_delete(message.chat.id, f"👋 Hello {message.from_user.first_name}!\nWelcome to **Cris Bot** — your King Rank assistant.\nUse /help to see commands.", parse_mode="Markdown")
 
 @bot.message_handler(commands=['help'])
 def help_cmd(message):
