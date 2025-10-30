@@ -127,210 +127,164 @@ def menu(message):
         send_and_auto_delete(message.chat.id, "❌ You have no balance.")
         
     
-
 @bot.message_handler(commands=['html'])
 def ask_name(message):
-    # Only allow in private
+    # Only allow in private chat
     if message.chat.type in ['group', 'supergroup']:
         bot.reply_to(
             message,
-            "⚠️ This command only works in *private chat*.\n"
-            "Please message me privately to create your birthday gift card 🎂",
+            f"⚠️ This command only works in *private chat*.\n"
+            f"👉 [Click here to message me privately](t.me/{bot.get_me().username})",
             parse_mode="Markdown"
         )
         return
 
-    bot.reply_to(message, "🎂 Please enter the *name* of the celebrant:", parse_mode="Markdown")
-    bot.register_next_step_handler(message, ask_celebration)
+    sent = bot.reply_to(message, "🎂 Please enter the *name* of the celebrant:", parse_mode="Markdown")
+    schedule_delete(message.chat.id, sent.message_id)
+    bot.register_next_step_handler(sent, ask_celebration)
 
 
 def ask_celebration(message):
     name = message.text.strip()
-    msg = bot.reply_to(message, f"🎉 What is {name}'s celebration? (e.g., 18th Birthday, Wedding, Graduation):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, ask_birthdate, name)
+    sent = bot.reply_to(message, f"🎉 What is {name}'s celebration? (e.g., Birthday, Wedding, Graduation):", parse_mode="Markdown")
+    schedule_delete(message.chat.id, sent.message_id)
+    bot.register_next_step_handler(sent, ask_birthdate, name)
 
 
 def ask_birthdate(message, name):
     celebration = message.text.strip()
-    msg = bot.reply_to(message, f"📅 Enter the *birthdate* of {name} (format: YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, ask_age, name, celebration)
+    sent = bot.reply_to(message, f"📅 Enter the *birthdate* of {name} (YYYY-MM-DD):", parse_mode="Markdown")
+    schedule_delete(message.chat.id, sent.message_id)
+    bot.register_next_step_handler(sent, ask_age, name, celebration)
 
 
 def ask_age(message, name, celebration):
     birthdate = message.text.strip()
-    msg = bot.reply_to(message, "🎈 Enter the *age when birthday comes*:", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, ask_relation, name, celebration, birthdate)
+    sent = bot.reply_to(message, "🎈 Enter the *age when birthday comes*:", parse_mode="Markdown")
+    schedule_delete(message.chat.id, sent.message_id)
+    bot.register_next_step_handler(sent, ask_relation, name, celebration, birthdate)
 
 
 def ask_relation(message, name, celebration, birthdate):
     age = message.text.strip()
-    msg = bot.reply_to(message, f"❤️ What is your *relation* to {name}? (e.g., Friend, Cousin, Sibling):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, ask_message, name, celebration, birthdate, age)
+    sent = bot.reply_to(message, f"❤️ What is your *relation* to {name}? (e.g., Friend, Cousin, Sibling):", parse_mode="Markdown")
+    schedule_delete(message.chat.id, sent.message_id)
+    bot.register_next_step_handler(sent, ask_message, name, celebration, birthdate, age)
 
 
 def ask_message(message, name, celebration, birthdate, age):
     relation = message.text.strip()
-    msg = bot.reply_to(message, "💌 Enter your *message to the celebrant*:", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, ask_from, name, celebration, birthdate, age, relation)
+    sent = bot.reply_to(message, "💌 Enter your *message to the celebrant*:", parse_mode="Markdown")
+    schedule_delete(message.chat.id, sent.message_id)
+    bot.register_next_step_handler(sent, ask_from, name, celebration, birthdate, age, relation)
 
 
 def ask_from(message, name, celebration, birthdate, age, relation):
     msg_text = message.text.strip()
-    msg = bot.reply_to(message, "✍️ Finally, who is this gift card *from*? (Enter your name):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, ask_image, name, celebration, birthdate, age, relation, msg_text)
+    sent = bot.reply_to(message, "✍️ Finally, who is this gift card *from*? (Enter your name):", parse_mode="Markdown")
+    schedule_delete(message.chat.id, sent.message_id)
+    bot.register_next_step_handler(sent, ask_image, name, celebration, birthdate, age, relation, msg_text)
 
 
 def ask_image(message, name, celebration, birthdate, age, relation, msg_text):
     from_name = message.text.strip()
-    msg = bot.reply_to(
+    sent = bot.reply_to(
         message,
         "📸 Please upload or paste the *image link* of the celebrant:\n"
         "➡️ Host your image here: [Host Image Site](https://host-image-puce.vercel.app/)\n"
-        "Then send me the image link (must end with .jpg, .png, etc.)",
+        "Then send the image link (must end with .jpg or .png)",
         parse_mode="Markdown"
     )
-    bot.register_next_step_handler(msg, generate_html, name, celebration, birthdate, age, relation, msg_text, from_name)
+    schedule_delete(message.chat.id, sent.message_id)
+    bot.register_next_step_handler(sent, generate_html, name, celebration, birthdate, age, relation, msg_text, from_name)
 
 
 def generate_html(message, name, celebration, birthdate, age, relation, msg_text, from_name):
+    import io
+
     image_url = message.text.strip()
-    import io, datetime
-    today = datetime.date.today().strftime("%Y-%m-%d")
-    is_birthday = "🎉 TODAY is the special day!" if today == birthdate else "🎁 Countdown to the big day!"
+
+    # Determine the greeting based on celebration type
+    celebration_lower = celebration.lower()
+    if "birthday" in celebration_lower:
+        title = f"🎉 Happy Birthday, {name}!"
+    elif "wedding" in celebration_lower:
+        title = f"💍 Happy Wedding Day to both of you! Wishing all the best!"
+    elif "graduation" in celebration_lower:
+        title = f"🎓 Happy Graduation Day, {name}!"
+    else:
+        title = f"✨ {celebration} - Best wishes, {name}!"
 
     html_code = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎂 {celebration} - {name}</title>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>{title}</title>
 <style>
-  body {{
-    margin: 0;
-    overflow: hidden;
-    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Comic Sans MS', cursive;
-  }}
-  .card {{
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    text-align: center;
-    position: relative;
-    z-index: 2;
-    box-shadow: 0 0 40px rgba(255, 105, 180, 0.5);
-    border: 6px solid;
-    border-image: linear-gradient(45deg, #ff0000, #ff8800, #00aaff, #8a2be2) 1;
-    animation: pulse 3s infinite alternate;
-  }}
-  @keyframes pulse {{
-    0% {{ box-shadow: 0 0 20px rgba(255, 105, 180, 0.6); }}
-    100% {{ box-shadow: 0 0 60px rgba(255, 105, 180, 1); }}
-  }}
-  h1 {{
-    color: #ff69b4;
-    font-size: 3em;
-  }}
-  h2 {{
-    color: #ff69b4;
-    margin-top: 10px;
-  }}
-  p {{
-    font-size: 1.2em;
-    color: #555;
-  }}
-  img {{
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid #ff69b4;
-    margin-bottom: 20px;
-    animation: fadeIn 2s ease-in-out;
-  }}
-  @keyframes fadeIn {{
-    from {{ opacity: 0; transform: scale(0.8); }}
-    to {{ opacity: 1; transform: scale(1); }}
-  }}
-  .msg {{
-    margin-top: 20px;
-    font-size: 1.1em;
-    color: #333;
-    background: #fff0f5;
-    border-radius: 15px;
-    padding: 15px;
-    box-shadow: 0 0 10px rgba(255, 182, 193, 0.4);
-  }}
-  .signature {{
-    margin-top: 15px;
-    font-style: italic;
-    color: #ff69b4;
-  }}
-  .balloon {{
-    position: absolute;
-    bottom: -150px;
-    width: 60px;
-    height: 80px;
-    background: radial-gradient(circle at 30% 30%, #ffb6c1, #ff69b4);
-    border-radius: 60% 60% 60% 60%;
-    animation: float 6s ease-in-out infinite;
-  }}
-  .balloon::after {{
-    content: '';
-    position: absolute;
-    width: 2px;
-    height: 100px;
-    background: #666;
-    top: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-  }}
-  @keyframes float {{
-    0% {{ transform: translateY(0) rotate(0deg); opacity: 1; }}
-    50% {{ transform: translateY(-300px) rotate(10deg); opacity: 0.9; }}
-    100% {{ transform: translateY(-600px) rotate(-10deg); opacity: 0; }}
-  }}
+body {{
+  margin: 0;
+  background: linear-gradient(135deg,#ff9a9e,#fad0c4);
+  display: flex; align-items: center; justify-content: center;
+  height: 100vh; font-family: 'Comic Sans MS', cursive;
+}}
+.card {{
+  background: white; border-radius: 20px; padding: 40px; text-align: center;
+  box-shadow: 0 0 40px rgba(255,105,180,.5);
+  border: 6px solid; border-image: linear-gradient(45deg,#ff0000,#ff8800,#00aaff,#8a2be2) 1;
+  animation: pulse 3s infinite alternate;
+}}
+@keyframes pulse {{
+  0% {{box-shadow: 0 0 20px rgba(255,105,180,.6);}}
+  100% {{box-shadow: 0 0 60px rgba(255,105,180,1);}}
+}}
+img {{
+  width: 180px; height: 180px; border-radius: 50%; object-fit: cover;
+  border: 5px solid #ff69b4; margin-bottom: 20px;
+}}
+.msg {{
+  margin-top: 20px; font-size: 1.1em; background: #fff0f5;
+  border-radius: 15px; padding: 15px; color: #333;
+}}
+.signature {{
+  margin-top: 15px; font-style: italic; color: #ff69b4;
+}}
 </style>
 </head>
 <body>
-  <div class="card">
-    <img src="{image_url}" alt="{name}'s Photo" loading="lazy">
-    <h1>🎂 {celebration}</h1>
-    <h2>For {name}</h2>
-    <p>Age Turning: <b>{age}</b></p>
-    <p>Birthdate: <b>{birthdate}</b></p>
-    <p>Relation: <b>{relation}</b></p>
-    <p>{is_birthday}</p>
-    <hr style="margin:20px 0;">
-    <div class="msg">
-      <h3>💌 Message:</h3>
-      <p>{msg_text}</p>
-      <div class="signature">— Yours {relation}, {from_name} ❤️</div>
-    </div>
+<div class='card'>
+  <img src='{image_url}' alt='{name}' loading='lazy'>
+  <h1>{title}</h1>
+  <h2>For {name}</h2>
+  <p>Age Turning: <b>{age}</b></p>
+  <p>Birthdate: <b>{birthdate}</b></p>
+  <p>Relation: <b>{relation}</b></p>
+  <hr>
+  <div class='msg'>
+    <h3>💌 Message:</h3>
+    <p>{msg_text}</p>
+    <div class='signature'>— Yours {relation}, {from_name} ❤️</div>
   </div>
-
-  <!-- Floating Balloons -->
-  <div class="balloon" style="left:10%; animation-delay:0s;"></div>
-  <div class="balloon" style="left:30%; animation-delay:2s; background:radial-gradient(circle at 30% 30%, #ffe680, #ffcc00);"></div>
-  <div class="balloon" style="left:50%; animation-delay:1s; background:radial-gradient(circle at 30% 30%, #b0e0e6, #00bfff);"></div>
-  <div class="balloon" style="left:70%; animation-delay:3s; background:radial-gradient(circle at 30% 30%, #98fb98, #32cd32);"></div>
-  <div class="balloon" style="left:90%; animation-delay:4s; background:radial-gradient(circle at 30% 30%, #dda0dd, #ba55d3);"></div>
+</div>
 </body>
 </html>"""
 
     file_obj = io.BytesIO(html_code.encode('utf-8'))
-    safe_name = name.lower().replace(' ', '_')
-    file_obj.name = f"giftcard_{safe_name}.html"
+    file_obj.name = f"giftcard_{name.lower().replace(' ','_')}.html"
+    sent = bot.send_document(message.chat.id, file_obj, caption=f"🎁 Gift card for {name} 🎉")
+    schedule_delete(message.chat.id, sent.message_id)
 
-    bot.send_document(
-        chat_id=message.chat.id,
-        document=file_obj,
-        caption=f"🎁 Here’s your personalized gift card for {name}! 🎉"
-    )
+
+def schedule_delete(chat_id, message_id):
+    import threading, time
+    def delete_later():
+        time.sleep(3600)
+        try:
+            bot.delete_message(chat_id, message_id)
+        except:
+            pass
+    threading.Thread(target=delete_later).start()
+    
 # ===================== #
 #     OTHER COMMANDS
 # ===================== #
