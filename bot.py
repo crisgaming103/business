@@ -181,11 +181,15 @@ def ask_birthday_relation(message, name, birthdate):
     bot.register_next_step_handler(sent, ask_birthday_image, name, birthdate, age)
 
 
-def ask_birthday_image(message, name, birthdate, age):
-    relation = message.text.strip()
-    sent = bot.send_message(message.chat.id, "📸 Upload or send the image link of the celebrant (jpg/png):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_birthday_message, name, birthdate, age, relation)
-
+def ask_graduation_image(message, name):
+    grad_date = message.text.strip()
+    sent = bot.send_message(
+        message.chat.id,
+        "📸 Upload or send the image link of the graduate (jpg/png):\n\n"
+        "You can host your image here: https://host-image-puce.vercel.app/",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_graduation_message, name, grad_date)
 
 def ask_birthday_message(message, name, birthdate, age, relation):
     image_url = message.text.strip()
@@ -211,9 +215,9 @@ body {{
     border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff69b4; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:40px; }}
+.details {{ margin-bottom:20px; font-size:44px; }}
 .message-box {{ background:#ffe4e1; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:46px; }}
-.from {{ font-style:italic; font-size:40px; }}
+.from {{ font-style:italic; font-size:48px; }}
 </style>
 </head>
 <body>
@@ -224,7 +228,9 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 <p>For: {name}</p><p>Birthdate: {birthdate}</p><p>Age Turning: {age}</p><p>Relation: {relation}</p>
 </div>
 <div class="message-box"><p>{msg_text}</p></div>
-<div class="from"><p>From: Your Friend</p></div>
+<div class="from">
+    <p>From: {sender_name} ({relation})</p>
+</div>
 </div></body></html>"""
     send_html_file(message.chat.id, html_code, name)
 
@@ -238,7 +244,12 @@ def ask_graduation_date(message):
 
 def ask_graduation_image(message, name):
     grad_date = message.text.strip()
-    sent = bot.send_message(message.chat.id, "📸 Upload or send the image link of the graduate (jpg/png):", parse_mode="Markdown")
+    sent = bot.send_message(
+        message.chat.id,
+        "📸 Upload or send the image link of the graduate (jpg/png):\n\n"
+        "You can host your image here: https://host-image-puce.vercel.app/",
+        parse_mode="Markdown"
+    )
     bot.register_next_step_handler(sent, ask_graduation_message, name, grad_date)
 
 
@@ -267,8 +278,8 @@ body {{
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #00aaff; margin-bottom:20px; }}
 .details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#d1f0ff; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:44px; }}
-.from {{ font-style:italic; font-size:40px; }}
+.message-box {{ background:#d1f0ff; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:48px; }}
+.from {{ font-style:italic; font-size:48px; }}
 </style>
 </head>
 <body>
@@ -279,7 +290,9 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 <p>Graduate: {name}</p><p>Graduation Date: {grad_date}</p>
 </div>
 <div class="message-box"><p>{msg_text}</p></div>
-<div class="from"><p>From: Your Friend</p></div>
+<div class="from">
+    <p>From: {sender_name} ({relation})</p>
+</div>
 </div></body></html>"""
     send_html_file(message.chat.id, html_code, name)
 
@@ -291,10 +304,15 @@ def ask_wedding_date(message):
     bot.register_next_step_handler(sent, ask_wedding_image, couple_name)
 
 
-def ask_wedding_image(message, couple_name):
-    wedding_date = message.text.strip()
-    sent = bot.send_message(message.chat.id, "📸 Upload or send the image link of the couple (jpg/png):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_wedding_message, couple_name, wedding_date)
+def ask_graduation_image(message, name):
+    grad_date = message.text.strip()
+    sent = bot.send_message(
+        message.chat.id,
+        "📸 Upload or send the image link of the graduate (jpg/png):\n\n"
+        "You can host your image here: https://host-image-puce.vercel.app/",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_graduation_message, name, grad_date)
 
 
 def ask_wedding_message(message, couple_name, wedding_date):
@@ -334,7 +352,9 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 <p>Couple: {couple_name}</p><p>Wedding Date: {wedding_date}</p>
 </div>
 <div class="message-box"><p>{msg_text}</p></div>
-<div class="from"><p>From: Your Friend</p></div>
+<div class="from">
+    <p>From: {sender_name} ({relation})</p>
+</div>
 </div></body></html>"""
     send_html_file(message.chat.id, html_code, couple_name)
 
