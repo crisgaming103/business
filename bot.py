@@ -128,6 +128,7 @@ def menu(message):
         
     
 
+# --- Command Handler ---
 @bot.message_handler(commands=['html'])
 def choose_celebration(message):
     if message.chat.type in ['group', 'supergroup']:
@@ -163,12 +164,12 @@ def ask_details_by_type(message):
 
 
 # --- Birthday Flow ---
-def ask_birthday_name(message):
+def ask_birthday_date(message):
     name = message.text.strip()
     sent = bot.send_message(message.chat.id, f"📅 Enter {name}'s birthday (YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_birthday_date, name)
+    bot.register_next_step_handler(sent, ask_birthday_age, name)
 
-def ask_birthday_date(message, name):
+def ask_birthday_age(message, name):
     birthdate = message.text.strip()
     sent = bot.send_message(message.chat.id, f"🎈 Enter the age {name} will turn:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_birthday_relation, name, birthdate)
@@ -176,9 +177,9 @@ def ask_birthday_date(message, name):
 def ask_birthday_relation(message, name, birthdate):
     age = message.text.strip()
     sent = bot.send_message(message.chat.id, f"❤️ What is your relation to {name}?", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_sender_name, name, birthdate, age)
+    bot.register_next_step_handler(sent, ask_birthday_sender_name, name, birthdate, age)
 
-def ask_sender_name(message, name, birthdate, age):
+def ask_birthday_sender_name(message, name, birthdate, age):
     relation = message.text.strip()
     sent = bot.send_message(message.chat.id, f"📝 Enter your name (the sender) for {name}'s birthday gift card:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_birthday_image, name, birthdate, age, relation)
@@ -234,36 +235,19 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 </body></html>"""
     send_html_file(message.chat.id, html_code, name)
 
-# --- Helper to send HTML file with auto-delete ---
-def send_html_file(chat_id, html_code, name):
-    file_obj = io.BytesIO(html_code.encode('utf-8'))
-    file_obj.name = f"giftcard_{name.lower().replace(' ', '_')}.html"
-    sent = bot.send_document(chat_id, file_obj, caption=f"🎁 Gift card for {name}")
-    schedule_delete(chat_id, sent.message_id)
-
-# --- Auto-delete after 1 hour ---
-def schedule_delete(chat_id, message_id):
-    def delete_later():
-        time.sleep(3600)  # 1 hour
-        try:
-            bot.delete_message(chat_id, message_id)
-        except:
-            pass
-    threading.Thread(target=delete_later).start()
-
 
 # --- Graduation Flow ---
-def ask_graduation_name(message):
+def ask_graduation_date(message):
     name = message.text.strip()
     sent = bot.send_message(message.chat.id, f"📅 Enter the graduation date for {name} (YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_graduation_date, name)
+    bot.register_next_step_handler(sent, ask_graduation_relation, name)
 
-def ask_graduation_date(message, name):
+def ask_graduation_relation(message, name):
     grad_date = message.text.strip()
     sent = bot.send_message(message.chat.id, f"❤️ What is your relation to {name}?", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_sender_name, name, grad_date)
+    bot.register_next_step_handler(sent, ask_graduation_sender_name, name, grad_date)
 
-def ask_sender_name(message, name, grad_date):
+def ask_graduation_sender_name(message, name, grad_date):
     relation = message.text.strip()
     sent = bot.send_message(message.chat.id, f"📝 Enter your name (the sender) for {name}'s graduation gift card:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_graduation_image, name, grad_date, relation)
@@ -319,193 +303,9 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 </body></html>"""
     send_html_file(message.chat.id, html_code, name)
 
-# --- Helper to send HTML file ---
-def send_html_file(chat_id, html_code, name):
-    file_obj = io.BytesIO(html_code.encode('utf-8'))
-    file_obj.name = f"giftcard_{name.lower().replace(' ', '_')}.html"
-    sent = bot.send_document(chat_id, file_obj, caption=f"🎁 Gift card for {name}")
-    schedule_delete(chat_id, sent.message_id)
-
-# --- Auto-delete after 1 hour ---
-def schedule_delete(chat_id, message_id):
-    def delete_later():
-        time.sleep(3600)
-        try:
-from telebot import types
-import threading, time, io
-
-# --- Command Handler ---
-@bot.message_handler(commands=['html'])
-def choose_celebration(message):
-    if message.chat.type in ['group', 'supergroup']:
-        bot.reply_to(
-            message,
-            f"⚠️ This command only works in *private chat*.\n"
-            f"👉 [Click here to message me privately](t.me/{bot.get_me().username})",
-            parse_mode="Markdown"
-        )
-        return
-
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    markup.add("Birthday", "Graduation", "Wedding")
-    sent = bot.send_message(message.chat.id, "🎉 Choose the celebration type:", reply_markup=markup)
-    schedule_delete(message.chat.id, sent.message_id)
-    bot.register_next_step_handler(sent, ask_details_by_type)
-
-def ask_details_by_type(message):
-    celebration_type = message.text.strip().lower()
-    if celebration_type == "birthday":
-        sent = bot.send_message(message.chat.id, "🎂 Enter the *name* of the birthday celebrant:", parse_mode="Markdown")
-        bot.register_next_step_handler(sent, ask_birthday_name)
-    elif celebration_type == "graduation":
-        sent = bot.send_message(message.chat.id, "🎓 Enter the *name* of the graduate:", parse_mode="Markdown")
-        bot.register_next_step_handler(sent, ask_graduation_name)
-    elif celebration_type == "wedding":
-        sent = bot.send_message(message.chat.id, "💍 Enter the *name(s) of the couple*:", parse_mode="Markdown")
-        bot.register_next_step_handler(sent, ask_wedding_name)
-    else:
-        sent = bot.send_message(message.chat.id, "❌ Invalid choice. Please type /html to try again.")
-        schedule_delete(message.chat.id, sent.message_id)
-
-
-# --- Common Helper Functions ---
-def send_html_file(chat_id, html_code, name):
-    file_obj = io.BytesIO(html_code.encode('utf-8'))
-    file_obj.name = f"giftcard_{name.lower().replace(' ', '_')}.html"
-    sent = bot.send_document(chat_id, file_obj, caption=f"🎁 Gift card for {name}")
-    schedule_delete(chat_id, sent.message_id)
-
-def schedule_delete(chat_id, message_id):
-    def delete_later():
-        time.sleep(3600)
-        try:
-            bot.delete_message(chat_id, message_id)
-        except:
-            pass
-    threading.Thread(target=delete_later).start()
-
-
-# --- Birthday Flow ---
-def ask_birthday_name(message):
-    name = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"📅 Enter {name}'s birthday (YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_birthday_age, name)
-
-def ask_birthday_age(message, name):
-    birthdate = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"🎈 Enter the age {name} will turn:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_birthday_relation, name, birthdate)
-
-def ask_birthday_relation(message, name, birthdate):
-    age = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"❤️ What is your relation to {name}?", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_birthday_sender, name, birthdate, age)
-
-def ask_birthday_sender(message, name, birthdate, age):
-    relation = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"📝 Enter your name (the sender) for {name}'s birthday gift card:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_birthday_image, name, birthdate, age, relation)
-
-def ask_birthday_image(message, name, birthdate, age, relation):
-    sender_name = message.text.strip()
-    sent = bot.send_message(
-        message.chat.id,
-        "📸 Upload or send the image link of the celebrant (jpg/png). You can host your image here: https://host-image-puce.vercel.app/",
-        parse_mode="Markdown"
-    )
-    bot.register_next_step_handler(sent, ask_birthday_message, name, birthdate, age, relation, sender_name)
-
-def ask_birthday_message(message, name, birthdate, age, relation, sender_name):
-    image_url = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"💌 Enter your birthday message for {name}:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, generate_birthday_html, name, birthdate, age, relation, sender_name, image_url)
-
-def generate_birthday_html(message, name, birthdate, age, relation, sender_name, image_url):
-    msg_text = message.text.strip()
-    html_code = f"""<!DOCTYPE html>
-<html lang='en'>
-<head><meta charset='UTF-8'><title>🎉 {name}'s Birthday!</title>
-<style>
-body {{ font-family: 'Comic Sans MS', cursive, sans-serif; background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed; background-size: cover; display: flex; justify-content:center; align-items:center; height:100vh; margin:0; }}
-.container {{ background: rgba(255,255,255,0.85); padding:200px; border-radius:20px; text-align:center; max-width:500px; border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1; }}
-img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff69b4; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#ffe4e1; padding:60px 40px; border-radius:15px; margin-bottom:20px; font-size:46px; }}
-.from {{ font-style:italic; font-size:40px; }}
-</style>
-</head>
-<body>
-<div class="container">
-<img src="{image_url}" alt="{name}" loading="lazy">
-<h1>🎉 Happy Birthday, {name}!</h1>
-<div class="details">
-<p>For: {name}</p><p>Birthdate: {birthdate}</p><p>Age Turning: {age}</p><p>Relation: {relation}</p>
-</div>
-<div class="message-box"><p>{msg_text}</p></div>
-<p>From: {sender_name} ({relation})</p>
-</div>
-</body></html>"""
-    send_html_file(message.chat.id, html_code, name)
-
-# --- Graduation Flow ---
-def ask_graduation_name(message):
-    name = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"📅 Enter the graduation date for {name} (YYYY-MM-DD):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_graduation_relation, name)
-
-def ask_graduation_relation(message, name):
-    grad_date = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"❤️ What is your relation to {name}?", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_graduation_sender, name, grad_date)
-
-def ask_graduation_sender(message, name, grad_date):
-    relation = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"📝 Enter your name (the sender) for {name}'s graduation gift card:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_graduation_image, name, grad_date, relation)
-
-def ask_graduation_image(message, name, grad_date, relation):
-    sender_name = message.text.strip()
-    sent = bot.send_message(
-        message.chat.id,
-        "📸 Upload or send the image link of the graduate (jpg/png). You can host your image here: https://host-image-puce.vercel.app/",
-        parse_mode="Markdown"
-    )
-    bot.register_next_step_handler(sent, ask_graduation_message, name, grad_date, relation, sender_name)
-
-def ask_graduation_message(message, name, grad_date, relation, sender_name):
-    image_url = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"💌 Enter your congratulatory message for {name}:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, generate_graduation_html, name, grad_date, image_url, relation, sender_name)
-
-def generate_graduation_html(message, name, grad_date, image_url, relation, sender_name):
-    msg_text = message.text.strip()
-    html_code = f"""<!DOCTYPE html>
-<html lang='en'>
-<head><meta charset='UTF-8'><title>🎓 {name}'s Graduation!</title>
-<style>
-body {{ font-family: 'Comic Sans MS', cursive, sans-serif; background: url('https://i.ibb.co/rfvTqWgR/images-3.jpg') no-repeat center center fixed; background-size: cover; display: flex; justify-content:center; align-items:center; height:100vh; margin:0; }}
-.container {{ background: rgba(255,255,255,0.85); padding:200px; border-radius:20px; text-align:center; max-width:500px; border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1; }}
-img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #00aaff; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#d1f0ff; padding:60px 40px; border-radius:15px; margin-bottom:20px; font-size:44px; }}
-.from {{ font-style:italic; font-size:40px; }}
-</style>
-</head>
-<body>
-<div class="container">
-<img src="{image_url}" alt="{name}" loading="lazy">
-<h1>🎓 Happy Graduation Day, {name}!</h1>
-<div class="details">
-<p>Graduate: {name}</p><p>Graduation Date: {grad_date}</p>
-</div>
-<div class="message-box"><p>{msg_text}</p></div>
-<p>From: {sender_name} ({relation})</p>
-</div>
-</body></html>"""
-    send_html_file(message.chat.id, html_code, name)
 
 # --- Wedding Flow ---
-def ask_wedding_name(message):
+def ask_wedding_date(message):
     couple_name = message.text.strip()
     sent = bot.send_message(message.chat.id, f"📅 Enter the wedding date for {couple_name} (YYYY-MM-DD):", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_wedding_relation, couple_name)
@@ -513,9 +313,9 @@ def ask_wedding_name(message):
 def ask_wedding_relation(message, couple_name):
     wedding_date = message.text.strip()
     sent = bot.send_message(message.chat.id, f"❤️ What is your relation to {couple_name}?", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_wedding_sender, couple_name, wedding_date)
+    bot.register_next_step_handler(sent, ask_wedding_sender_name, couple_name, wedding_date)
 
-def ask_wedding_sender(message, couple_name, wedding_date):
+def ask_wedding_sender_name(message, couple_name, wedding_date):
     relation = message.text.strip()
     sent = bot.send_message(message.chat.id, f"📝 Enter your name (the sender) for {couple_name}'s gift card:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_wedding_image, couple_name, wedding_date, relation)
@@ -524,7 +324,8 @@ def ask_wedding_image(message, couple_name, wedding_date, relation):
     sender_name = message.text.strip()
     sent = bot.send_message(
         message.chat.id,
-        "📸 Upload or send the image link of the couple (jpg/png). You can host your image here: https://host-image-puce.vercel.app/",
+        "📸 Upload or send the image link of the couple (jpg/png). "
+        "You can host your image here: https://host-image-puce.vercel.app/",
         parse_mode="Markdown"
     )
     bot.register_next_step_handler(sent, ask_wedding_message, couple_name, wedding_date, relation, sender_name)
@@ -540,11 +341,20 @@ def generate_wedding_html(message, couple_name, wedding_date, image_url, relatio
 <html lang='en'>
 <head><meta charset='UTF-8'><title>💍 {couple_name}'s Wedding!</title>
 <style>
-body {{ font-family: 'Comic Sans MS', cursive, sans-serif; background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed; background-size: cover; display: flex; justify-content:center; align-items:center; height:100vh; margin:0; }}
-.container {{ background: rgba(255,255,255,0.85); padding:200px; border-radius:20px; text-align:center; max-width:500px; border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1; }}
+body {{
+       font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
+}}
+.container {{
+    background: rgba(255,255,255,0.85);
+    padding: 200px; border-radius:20px; text-align:center; max-width:500px;
+    border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
+}}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
 .details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#fff2cc; padding:60px 40px; border-radius:15px; margin-bottom:20px; font-size:48px; }}
+.message-box {{ background:#fff2cc; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:48px; }}
 .from {{ font-style:italic; font-size:48px; }}
 </style>
 </head>
@@ -560,6 +370,27 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
 </div>
 </body></html>"""
     send_html_file(message.chat.id, html_code, couple_name)
+
+
+# --- Helper to send HTML file with auto-delete ---
+def send_html_file(chat_id, html_code, name):
+    file_obj = io.BytesIO(html_code.encode('utf-8'))
+    file_obj.name = f"giftcard_{name.lower().replace(' ', '_')}.html"
+    sent = bot.send_document(chat_id, file_obj, caption=f"🎁 Gift card for {name}")
+    schedule_delete(chat_id, sent.message_id)
+
+# --- Auto-delete after 1 hour ---
+def schedule_delete(chat_id, message_id):
+    def delete_later():
+        time.sleep(3600)
+        try:
+            bot.delete_message(chat_id, message_id)
+        except:
+            pass
+    threading.Thread(target=delete_later).start()
+
+
+
 
 
     
