@@ -157,18 +157,20 @@ def ask_details_by_type(message):
         schedule_delete(message.chat.id, sent.message_id)
 
 # --- SURPRISE FLOW ---
+# --- SURPRISE FLOW ---
 def ask_surprise_name(message):
     sent = bot.send_message(message.chat.id, "🎉 Enter the recipient's name for the surprise card:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_surprise_title)
+    bot.register_next_step_handler(sent, ask_surprise_logo)
 
-def ask_surprise_title(message):
+def ask_surprise_logo(message):
     name = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"📝 Enter the title for {name}'s surprise card (e.g., 'I have a little surprise for you'):", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_surprise_logo, name)
-
-def ask_surprise_logo(message, name):
-    title = message.text.strip()
-    sent = bot.send_message(message.chat.id, f"📸 Provide the logo/image URL for the card:", parse_mode="Markdown")
+    title = "I have a little surprise for you"  # default title
+    sent = bot.send_message(
+        message.chat.id,
+        f"📸 Upload or send the image/logo URL for {name}'s surprise card (jpg/png). "
+        "You can host your image here: https://host-image-puce.vercel.app/",
+        parse_mode="Markdown"
+    )
     bot.register_next_step_handler(sent, ask_surprise_message, name, title)
 
 def ask_surprise_message(message, name, title):
@@ -176,7 +178,7 @@ def ask_surprise_message(message, name, title):
     sent = bot.send_message(message.chat.id, f"💌 Enter the surprise message for {name}:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_surprise_sender, name, title, logo_url)
 
-def ask_surprise_sender(message, name, title, logo_url, msg_text=None):
+def ask_surprise_sender(message, name, title, logo_url):
     msg_text = message.text.strip()
     sent = bot.send_message(message.chat.id, f"✍️ Who is sending this surprise? Enter your name:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, generate_surprise_html, name, title, logo_url, msg_text)
@@ -246,7 +248,7 @@ h1 {{
 <body>
 <div class="container">
     <img src="{logo_url}" alt="Logo" class="logo">
-    <h1>{title}, {name}!</h1>
+    <h1>🎉 {title}, {name}!</h1>
     <div class="message-box"><p>{msg_text}</p></div>
     <p class="from">From: {sender_name}</p>
 </div>
