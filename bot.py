@@ -213,13 +213,28 @@ body {{
 }}
 .container {{
     background: rgba(255,255,255,0.85);
-    padding:200px; border-radius:20px; text-align:center; max-width:500px;
-    border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
+    padding: 40px 30px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 800px;
+    width: 90%;
+    border: 5px solid;
+    border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff69b4; margin-bottom:20px; }}
 .details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#ffe4e1; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:46px; }}
-.from {{ font-style:italic; font-size:100px; }}
+.message-box {{
+    background: #d1f0ff;
+    padding: 30px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    font-size: clamp(20px, 4vw, 80px);
+    word-wrap: break-word;
+}}
+.from {{
+    font-style: italic;
+    font-size: clamp(20px, 3vw, 60px);
+}}
 </style>
 </head>
 <body>
@@ -276,7 +291,7 @@ def generate_graduation_html(message, name, grad_date, image_url, relation, send
 <title>🎓 {name}'s Graduation!</title>
 <style>
 body {{
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+           font-family: 'Comic Sans MS', cursive, sans-serif;
     background: url('https://i.ibb.co/rfvTqWgR/images-3.jpg') no-repeat center center fixed;
     background-size: cover;
     display: flex; justify-content: center; align-items: center;
@@ -310,7 +325,7 @@ h1 {{
 
 .details {{
     margin-bottom: 20px;
-    font-size: clamp(18px, 3vw, 60px);
+    font-size: clamp(20px, 3vw, 60px);
 }}
 
 .message-box {{
@@ -324,7 +339,7 @@ h1 {{
 
 .from {{
     font-style: italic;
-    font-size: clamp(18px, 3vw, 60px);
+    font-size: clamp(20px, 3vw, 60px);
 }}
 </style>
 </head>
@@ -391,13 +406,28 @@ body {{
 }}
 .container {{
     background: rgba(255,255,255,0.85);
-    padding: 200px; border-radius:20px; text-align:center; max-width:500px;
-    border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
+    padding: 40px 30px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 800px;
+    width: 90%;
+    border: 5px solid;
+    border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
 img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
 .details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#fff2cc; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:48px; }}
-.from {{ font-style:italic; font-size:100px; }}
+.message-box {{
+    background: #d1f0ff;
+    padding: 30px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    font-size: clamp(20px, 4vw, 80px);
+    word-wrap: break-word;
+}}
+.from {{
+    font-style: italic;
+    font-size: clamp(20px, 3vw, 60px);
+}}
 </style>
 </head>
 <body>
