@@ -140,28 +140,162 @@ def choose_celebration(message):
         )
         return
 
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    markup.add("Birthday", "Graduation", "Wedding")
-    sent = bot.send_message(message.chat.id, "🎉 Choose the celebration type:", reply_markup=markup)
-    schedule_delete(message.chat.id, sent.message_id)
-    bot.register_next_step_handler(sent, ask_details_by_type)
+markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+markup.add("Birthday", "Graduation", "Wedding", "Surprise 🎁")  # added Surprise
+sent = bot.send_message(message.chat.id, "🎉 Choose the celebration type:", reply_markup=markup)
+schedule_delete(message.chat.id, sent.message_id)
+bot.register_next_step_handler(sent, ask_details_by_type)
 
 
 def ask_details_by_type(message):
     celebration_type = message.text.strip().lower()
+    
     if celebration_type == "birthday":
         sent = bot.send_message(message.chat.id, "🎂 Enter the *name* of the birthday celebrant:", parse_mode="Markdown")
         bot.register_next_step_handler(sent, ask_birthday_date)
+        
     elif celebration_type == "graduation":
         sent = bot.send_message(message.chat.id, "🎓 Enter the *name* of the graduate:", parse_mode="Markdown")
         bot.register_next_step_handler(sent, ask_graduation_date)
+        
     elif celebration_type == "wedding":
         sent = bot.send_message(message.chat.id, "💍 Enter the *name(s) of the couple*:", parse_mode="Markdown")
         bot.register_next_step_handler(sent, ask_wedding_date)
+        
+    elif celebration_type == "surprise 🎁":
+        generate_surprise_card(message)  # call a function to create a random surprise card
+        
     else:
         sent = bot.send_message(message.chat.id, "❌ Invalid choice. Please type /html to try again.")
         schedule_delete(message.chat.id, sent.message_id)
 
+# --- Surprise Card Flow 
+
+
+def ask_surprise_name(message):
+    sent = bot.send_message(
+        message.chat.id,
+        "🎉 Enter the name of the person for the surprise card:",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_surprise_title)
+
+
+def ask_surprise_title(message):
+    name = message.text.strip()
+    sent = bot.send_message(
+        message.chat.id,
+        f"📝 Enter the title for {name}'s surprise card (e.g., 'I have a little surprise for you'):",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_surprise_logo, name)
+
+
+def ask_surprise_logo(message, name):
+    title = message.text.strip()
+    sent = bot.send_message(
+        message.chat.id,
+        f"📸 Please provide the logo/image URL for the card. "
+        "You can host your image here: https://host-image-puce.vercel.app/",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_surprise_message, name, title)
+
+
+def ask_surprise_message(message, name, title):
+    logo_url = message.text.strip()
+    sent = bot.send_message(
+        message.chat.id,
+        f"💌 Enter the surprise message to show on the card for {name}:",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_surprise_sender, name, title, logo_url)
+
+
+def ask_surprise_sender(message, name, title, logo_url):
+    msg_text = message.text.strip()
+    sent = bot.send_message(
+        message.chat.id,
+        f"✍️ Who is sending this surprise to {name}? Enter your name:",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, generate_surprise_html, name, title, logo_url, msg_text)
+
+
+def generate_surprise_html(message, name, title, logo_url, msg_text):
+    sender_name = message.text.strip()
+    background_url = "https://i.ibb.co/BHpFv6Tq/images-2.jpg"  
+
+    html_code = f"""<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<title>🎁 Surprise for {name}!</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@keyframes rainbow {{
+    0% {{ background-position: 0% 50%; }}
+    50% {{ background-position: 100% 50%; }}
+    100% {{ background-position: 0% 50%; }}
+}}
+body {{
+    font-family: 'Dancing Script', cursive;
+    background: url('{background_url}') no-repeat center center fixed;
+    background-size: cover;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; margin: 0;
+}}
+.container {{
+    background: rgba(255,255,255,0.85);
+    padding: 50px 30px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 800px;
+    width: 90%;
+    border: 5px solid;
+    border-image: linear-gradient(45deg, red, green, blue) 1;
+}}
+.logo {{
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}}
+h1 {{
+    font-size: clamp(24px, 6vw, 100px);
+    margin-bottom: 20px;
+    background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet);
+    background-size: 1400% 1400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 10s ease infinite;
+}}
+.message-box {{
+    background: #ffe4e1;
+    padding: 30px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    font-size: clamp(20px, 4vw, 80px);
+    word-wrap: break-word;
+}}
+.from {{
+    font-style: italic;
+    font-size: clamp(18px, 3vw, 60px);
+}}
+</style>
+</head>
+<body>
+<div class="container">
+    <img src="{logo_url}" alt="Logo" class="logo">
+    <h1>{title}, {name}!</h1>
+    <div class="message-box"><p>{msg_text}</p></div>
+    <p class="from">From: {sender_name}</p>
+</div>
+</body>
+</html>"""
+
+    send_html_file(message.chat.id, html_code, f"Surprise_{name}").
+   
 
 # --- Birthday Flow ---
 def ask_birthday_date(message):
