@@ -271,37 +271,77 @@ def generate_graduation_html(message, name, grad_date, image_url, relation, send
     msg_text = message.text.strip()
     html_code = f"""<!DOCTYPE html>
 <html lang='en'>
-<head><meta charset='UTF-8'><title>🎓 {name}'s Graduation!</title>
+<head>
+<meta charset='UTF-8'>
+<title>🎓 {name}'s Graduation!</title>
 <style>
-body {{
-       font-family: 'Comic Sans MS', cursive, sans-serif;
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
     background: url('https://i.ibb.co/rfvTqWgR/images-3.jpg') no-repeat center center fixed;
     background-size: cover;
-    display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
-}}
-.container {{
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; margin: 0;
+}
+
+.container {
     background: rgba(255,255,255,0.85);
-    padding:200px; border-radius:20px; text-align:center; max-width:500px;
-    border:5px solid; border-image: linear-gradient(45deg, red, green, blue) 1;
-}}
-img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #00aaff; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:40px; }}
-.message-box {{ background:#d1f0ff; padding: 60px 40px;  border-radius:15px; margin-bottom:20px; font-size:48px; }}
-.from {{ font-style:italic; font-size:100px; }}
+    padding: 50px 30px;          /* reduced padding */
+    border-radius: 20px;
+    text-align: center;
+    max-width: 800px;             /* wider container */
+    width: 90%;
+    border: 5px solid;
+    border-image: linear-gradient(45deg, red, green, blue) 1;
+}
+
+img { 
+    width: 180px; 
+    height: 180px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    border: 5px solid #00aaff; 
+    margin-bottom: 20px; 
+}
+
+h1 {
+    font-size: 6vw;               
+    margin-bottom: 20px;
+}
+
+.details { 
+    margin-bottom: 20px; 
+    font-size: 3vw;               
+}
+
+.message-box { 
+    background: #d1f0ff; 
+    padding: 30px 20px;  
+    border-radius: 15px; 
+    margin-bottom: 20px; 
+    font-size: 4vw;               
+}
+
+.from { 
+    font-style: italic; 
+    font-size: 3vw;               
+}
 </style>
 </head>
 <body>
 <div class="container">
-<img src="{image_url}" alt="{name}" loading="lazy">
-<h1>🎓 Happy Graduation Day, {name}!</h1>
-<div class="details">
-<p>Graduate: {name}</p><p>Graduation Date: {grad_date}</p>
+    <img src="{image_url}" alt="{name}" loading="lazy">
+    <h1>🎓 Happy Graduation Day, {name}!</h1>
+    <div class="details">
+        <p>Graduate: {name}</p>
+        <p>Graduation Date: {grad_date}</p>
+    </div>
+    <div class="message-box">
+        <p>{msg_text}</p>
+    </div>
+    <p class="from">From: {sender_name} ({relation})</p>
 </div>
-<div class="message-box"><p>{msg_text}</p></div>
-<p>From: {sender_name} ({relation})</p>
-</div>
-</body></html>"""
-    send_html_file(message.chat.id, html_code, name)
+</body>
+</html>
 
 
 # --- Wedding Flow ---
