@@ -4,7 +4,7 @@ import json
 import threading
 import time
 
-BOT_TOKEN = "8210989428:AAEmQW5V1fsYTSLDQzxv6_KaiUX5ZLQOHLI"
+BOT_TOKEN = "8301200241:AAGiD7VZx5XvSED1YmVBlUjiGddZXGBHNFc"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 OWNER_ID = 6784382795
