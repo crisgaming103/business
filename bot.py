@@ -149,14 +149,26 @@ def choose_celebration(message):
 def ask_details_by_type(message):
     celebration_type = message.text.strip().lower()
 
-    if celebration_type in ["surprise 🎁", "surprise"]:
+    if celebration_type == "birthday":
+        sent = bot.send_message(message.chat.id, "🎂 Enter the *name* of the birthday celebrant:", parse_mode="Markdown")
+        bot.register_next_step_handler(sent, ask_birthday_date)
+
+    elif celebration_type == "graduation":
+        sent = bot.send_message(message.chat.id, "🎓 Enter the *name* of the graduate:", parse_mode="Markdown")
+        bot.register_next_step_handler(sent, ask_graduation_date)
+
+    elif celebration_type == "wedding":
+        sent = bot.send_message(message.chat.id, "💍 Enter the *name(s) of the couple*:", parse_mode="Markdown")
+        bot.register_next_step_handler(sent, ask_wedding_date)
+
+    elif celebration_type in ["surprise 🎁", "surprise"]:
         sent = bot.send_message(message.chat.id, "🎉 Let's make a Surprise card! First, enter the *recipient's name*:", parse_mode="Markdown")
         bot.register_next_step_handler(sent, ask_surprise_name)
+
     else:
         sent = bot.send_message(message.chat.id, "❌ Invalid choice. Please type /html to try again.")
         schedule_delete(message.chat.id, sent.message_id)
 
-# --- SURPRISE FLOW ---
 # --- SURPRISE FLOW ---
 def ask_surprise_name(message):
     sent = bot.send_message(message.chat.id, "🎉 Enter the recipient's name for the surprise card:", parse_mode="Markdown")
