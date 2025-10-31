@@ -140,91 +140,50 @@ def choose_celebration(message):
         )
         return
 
-markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-markup.add("Birthday", "Graduation", "Wedding", "Surprise 🎁")  # added Surprise
-sent = bot.send_message(message.chat.id, "🎉 Choose the celebration type:", reply_markup=markup)
-schedule_delete(message.chat.id, sent.message_id)
-bot.register_next_step_handler(sent, ask_details_by_type)
-
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    markup.add("Birthday", "Graduation", "Wedding", "Surprise 🎁")
+    sent = bot.send_message(message.chat.id, "🎉 Choose the celebration type:", reply_markup=markup)
+    schedule_delete(message.chat.id, sent.message_id)
+    bot.register_next_step_handler(sent, ask_details_by_type)
 
 def ask_details_by_type(message):
     celebration_type = message.text.strip().lower()
-    
-    if celebration_type == "birthday":
-        sent = bot.send_message(message.chat.id, "🎂 Enter the *name* of the birthday celebrant:", parse_mode="Markdown")
-        bot.register_next_step_handler(sent, ask_birthday_date)
-        
-    elif celebration_type == "graduation":
-        sent = bot.send_message(message.chat.id, "🎓 Enter the *name* of the graduate:", parse_mode="Markdown")
-        bot.register_next_step_handler(sent, ask_graduation_date)
-        
-    elif celebration_type == "wedding":
-        sent = bot.send_message(message.chat.id, "💍 Enter the *name(s) of the couple*:", parse_mode="Markdown")
-        bot.register_next_step_handler(sent, ask_wedding_date)
-        
-    elif celebration_type == "surprise 🎁":
-        generate_surprise_card(message)  # call a function to create a random surprise card
-        
+
+    if celebration_type in ["surprise 🎁", "surprise"]:
+        sent = bot.send_message(message.chat.id, "🎉 Let's make a Surprise card! First, enter the *recipient's name*:", parse_mode="Markdown")
+        bot.register_next_step_handler(sent, ask_surprise_name)
     else:
         sent = bot.send_message(message.chat.id, "❌ Invalid choice. Please type /html to try again.")
         schedule_delete(message.chat.id, sent.message_id)
 
-# --- Surprise Card Flow 
-
-
+# --- SURPRISE FLOW ---
 def ask_surprise_name(message):
-    sent = bot.send_message(
-        message.chat.id,
-        "🎉 Enter the name of the person for the surprise card:",
-        parse_mode="Markdown"
-    )
+    sent = bot.send_message(message.chat.id, "🎉 Enter the recipient's name for the surprise card:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_surprise_title)
-
 
 def ask_surprise_title(message):
     name = message.text.strip()
-    sent = bot.send_message(
-        message.chat.id,
-        f"📝 Enter the title for {name}'s surprise card (e.g., 'I have a little surprise for you'):",
-        parse_mode="Markdown"
-    )
+    sent = bot.send_message(message.chat.id, f"📝 Enter the title for {name}'s surprise card (e.g., 'I have a little surprise for you'):", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_surprise_logo, name)
-
 
 def ask_surprise_logo(message, name):
     title = message.text.strip()
-    sent = bot.send_message(
-        message.chat.id,
-        f"📸 Please provide the logo/image URL for the card. "
-        "You can host your image here: https://host-image-puce.vercel.app/",
-        parse_mode="Markdown"
-    )
+    sent = bot.send_message(message.chat.id, f"📸 Provide the logo/image URL for the card:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_surprise_message, name, title)
-
 
 def ask_surprise_message(message, name, title):
     logo_url = message.text.strip()
-    sent = bot.send_message(
-        message.chat.id,
-        f"💌 Enter the surprise message to show on the card for {name}:",
-        parse_mode="Markdown"
-    )
+    sent = bot.send_message(message.chat.id, f"💌 Enter the surprise message for {name}:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_surprise_sender, name, title, logo_url)
 
-
-def ask_surprise_sender(message, name, title, logo_url):
+def ask_surprise_sender(message, name, title, logo_url, msg_text=None):
     msg_text = message.text.strip()
-    sent = bot.send_message(
-        message.chat.id,
-        f"✍️ Who is sending this surprise to {name}? Enter your name:",
-        parse_mode="Markdown"
-    )
+    sent = bot.send_message(message.chat.id, f"✍️ Who is sending this surprise? Enter your name:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, generate_surprise_html, name, title, logo_url, msg_text)
-
 
 def generate_surprise_html(message, name, title, logo_url, msg_text):
     sender_name = message.text.strip()
-    background_url = "https://i.ibb.co/BHpFv6Tq/images-2.jpg"  
+    background_url = "https://i.ibb.co/BHpFv6Tq/images-2.jpg"  # birthday-style background
 
     html_code = f"""<!DOCTYPE html>
 <html lang='en'>
@@ -294,8 +253,8 @@ h1 {{
 </body>
 </html>"""
 
-    send_html_file(message.chat.id, html_code, f"Surprise_{name}").
-   
+    send_html_file(message.chat.id, html_code, f"Surprise_{name}")
+
 
 # --- Birthday Flow ---
 def ask_birthday_date(message):
