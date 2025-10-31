@@ -175,14 +175,18 @@ def ask_details_by_type(message):
         
         # --- VALENTINE'S FLOW ---
 def ask_valentine_name(message):
-    sent = bot.send_message(message.chat.id, "❤️ Enter your lover's name:", parse_mode="Markdown")
+    sent = bot.send_message(
+        message.chat.id,
+        "💖 Enter your partner's name for the Valentine's card:",
+        parse_mode="Markdown"
+    )
     bot.register_next_step_handler(sent, ask_valentine_callsign)
 
 def ask_valentine_callsign(message):
     name = message.text.strip()
     sent = bot.send_message(
         message.chat.id,
-        f"💌 Enter their *callsign/nickname*:",
+        f"💞 What do you call {name}? (Nickname or callsign)",
         parse_mode="Markdown"
     )
     bot.register_next_step_handler(sent, ask_valentine_since, name)
@@ -191,7 +195,7 @@ def ask_valentine_since(message, name):
     callsign = message.text.strip()
     sent = bot.send_message(
         message.chat.id,
-        "📅 Enter the date you became a couple (YYYY-MM-DD):",
+        f"📅 Since when have you been together? (format: YYYY-MM-DD)",
         parse_mode="Markdown"
     )
     bot.register_next_step_handler(sent, ask_valentine_relationship, name, callsign)
@@ -200,18 +204,18 @@ def ask_valentine_relationship(message, name, callsign):
     since_date = message.text.strip()
     sent = bot.send_message(
         message.chat.id,
-        "💞 Enter your relationship type (e.g., couple, lovebirds):",
+        "💞 Enter your relationship type (e.g., couple, lovebirds, fiancés):",
         parse_mode="Markdown"
     )
-    bot.register_next_step_handler(sent, get_relationship_type, name, callsign, since_date)
+    bot.register_next_step_handler(sent, ask_valentine_logo, name, callsign, since_date)
 
-def get_relationship_type(message, name, callsign, since_date):
+def ask_valentine_logo(message, name, callsign, since_date):
     relationship = message.text.strip()
     sent = bot.send_message(
         message.chat.id,
         f"📸 Upload or send the image/logo URL for {name}'s Valentine card (jpg/png). "
         "You can host your image here: https://host-image-puce.vercel.app/\n"
-        "Type 'none' if you don't want to add a logo.",
+        "Or just type 'none' if you don't want a logo.",
         parse_mode="Markdown"
     )
     bot.register_next_step_handler(sent, ask_valentine_message, name, callsign, since_date, relationship)
@@ -220,21 +224,31 @@ def ask_valentine_message(message, name, callsign, since_date, relationship):
     logo_url = message.text.strip()
     if logo_url.lower() == "none":
         logo_url = ""
-    sent = bot.send_message(message.chat.id, "✉️ Enter your personal message:", parse_mode="Markdown")
-    bot.register_next_step_handler(sent, ask_valentine_from, name, callsign, since_date, relationship, logo_url)
+    sent = bot.send_message(
+        message.chat.id,
+        f"💌 Enter your Valentine message for {name}:",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_valentine_sender, name, callsign, since_date, relationship, logo_url)
 
-def ask_valentine_from(message, name, callsign, since_date, relationship, logo_url):
+def ask_valentine_sender(message, name, callsign, since_date, relationship, logo_url):
     msg_text = message.text.strip()
-    sent = bot.send_message(message.chat.id, "📝 Who is sending this card?", parse_mode="Markdown")
+    sent = bot.send_message(
+        message.chat.id,
+        "✍️ Who is sending this Valentine card? (Enter your name)",
+        parse_mode="Markdown"
+    )
     bot.register_next_step_handler(sent, generate_valentine_html, name, callsign, since_date, relationship, logo_url, msg_text)
 
 def generate_valentine_html(message, name, callsign, since_date, relationship, logo_url, msg_text):
     sender_name = message.text.strip()
 
-   
     from datetime import datetime
-    since = datetime.strptime(since_date, "%Y-%m-%d")
-    years = datetime.now().year - since.year - ((datetime.now().month, datetime.now().day) < (since.month, since.day))
+    try:
+        since = datetime.strptime(since_date, "%Y-%m-%d")
+        years = datetime.now().year - since.year - ((datetime.now().month, datetime.now().day) < (since.month, since.day))
+    except Exception:
+        years = "N/A"
 
     background_url = "https://i.ibb.co/Z66JFKBj/images-4.jpg"
 
@@ -294,7 +308,7 @@ p.info {{ margin:10px 0; font-size: clamp(20px,3vw,60px); }}
 </head>
 <body>
 <div class="container">
-    {'<img src="'+logo_url+'" alt="Logo">' if logo_url else ''}
+    {'<img src="'+logo_url+'" alt="Logo" class="img">' if logo_url else ''}
     <h1>❤️ Happy Valentine's, {name}!</h1>
     <p class="info">Callsign: {callsign}</p>
     <p class="info">Relationship: {relationship}</p>
@@ -303,8 +317,7 @@ p.info {{ margin:10px 0; font-size: clamp(20px,3vw,60px); }}
     <p class="from">From: {sender_name}</p>
 </div>
 </body>
-</html>
-"""
+</html>"""
 
     send_html_file(message.chat.id, html_code, f"Valentine_{name}")
 
