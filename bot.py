@@ -7,10 +7,25 @@ import threading
 import time
 import requests
 import io
+import json
+import os
 
 BOT_TOKEN = "8210989428:AAEmQW5V1fsYTSLDQzxv6_KaiUX5ZLQOHLI"
 bot = telebot.TeleBot(BOT_TOKEN)
 
+DATA_FILE = "group_data.json"
+
+# Load or create storage file
+if os.path.exists(DATA_FILE):
+    with open(DATA_FILE, "r") as f:
+        data = json.load(f)
+else:
+    data = {"owners": {}, "messages": {}}
+
+def save_data():
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+        
 WELCOME_FILE = "welcome_messages.json"
 OWNER_ID = 6784382795
 ACCESS_KEY = "Cris-rank-2025"
@@ -126,6 +141,57 @@ def menu(message):
     else:
         send_and_auto_delete(message.chat.id, "❌ You have no balance.")
         
+        # When bot added to group
+@bot.message_handler(content_types=['new_chat_members'])
+def on_bot_added(message):
+    if message.new_chat_member.id == bot.get_me().id:
+        bot.reply_to(message, "👋 Hello! I'm now in this group.\n"
+                              "Only the *group owner* can set messages using /manage in private chat.",
+                              parse_mode="Markdown")
+        # Save the owner as the one who added the bot
+        data["owners"][str(message.from_user.id)] = str(message.chat.id)
+        save_data()
+
+# /manage command - only works in private
+@bot.message_handler(commands=['manage'])
+def manage_command(message):
+    if message.chat.type != 'private':
+        bot.reply_to(message, "⚠️ Please use /manage in private chat only.")
+        return
+
+    user_id = str(message.from_user.id)
+    if user_id not in data["owners"]:
+        bot.reply_to(message, "❌ You don’t own any group where I’m added.")
+        return
+
+    bot.send_message(message.chat.id,
+                     "📝 Send me *multiple lines* for your group message.\n\nExample:\nhi\nhello\nbye",
+                     parse_mode="Markdown")
+
+    bot.register_next_step_handler(message, lambda msg: save_group_messages(msg, user_id))
+
+def save_group_messages(message, user_id):
+    group_id = data["owners"][user_id]
+    lines = message.text.strip().split("\n")
+    data["messages"][group_id] = lines
+    save_data()
+
+    formatted = "\n".join([f"{line}\ncopy code" for line in lines])
+    bot.send_message(message.chat.id, f"✅ Saved messages for your group:\n\n{formatted}")
+
+# /command usable in groups
+@bot.message_handler(commands=['command'])
+def show_command_message(message):
+    if message.chat.type in ['group', 'supergroup']:
+        group_id = str(message.chat.id)
+        if group_id in data["messages"]:
+            lines = data["messages"][group_id]
+            formatted = "\n".join([f"{line}\ncopy code" for line in lines])
+            bot.reply_to(message, f"📋 *Group Messages:*\n\n```\n{formatted}\n```", parse_mode="Markdown")
+        else:
+            bot.reply_to(message, "⚠️ No message set yet. Ask your group owner to set one using /manage in private chat.")
+    else:
+        bot.reply_to(message, "⚠️ Use this command inside your group.")
     
 
 # --- Command Handler ---
