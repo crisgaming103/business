@@ -387,7 +387,14 @@ body {{
     border: 5px solid;
     border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
-.img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
+img {{
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #ff69b4;
+    margin-bottom: 20px;
+}}
 h1 {{
     font-size: clamp(24px, 6vw, 100px);
     margin-bottom: 20px;
