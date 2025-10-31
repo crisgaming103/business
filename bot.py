@@ -173,7 +173,7 @@ def ask_details_by_type(message):
         sent = bot.send_message(message.chat.id, "❌ Invalid choice. Please type /html to try again.")
         schedule_delete(message.chat.id, sent.message_id)
         
-# --- VALENTINE'S FLOW ---
+        # --- VALENTINE'S FLOW ---
 def ask_valentine_name(message):
     sent = bot.send_message(message.chat.id, "❤️ Enter your lover's name:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, ask_valentine_callsign)
@@ -182,7 +182,7 @@ def ask_valentine_callsign(message):
     name = message.text.strip()
     sent = bot.send_message(
         message.chat.id,
-        "💌 Enter their *callsign/nickname*:",
+        f"💌 Enter their *callsign/nickname*:",
         parse_mode="Markdown"
     )
     bot.register_next_step_handler(sent, ask_valentine_since, name)
@@ -205,11 +205,10 @@ def ask_valentine_relationship(message, name, callsign):
     )
     bot.register_next_step_handler(sent, ask_valentine_logo, name, callsign, since_date)
 
-def ask_valentine_logo(message, name, callsign, since_date):
-    relationship = message.text.strip()
+def ask_valentine_logo(message, name, callsign, since_date, relationship):
     sent = bot.send_message(
         message.chat.id,
-        f"📸 Upload or send the image/logo URL for {name}'s Valentine card (jpg/png).\n"
+        f"📸 Upload or send the image/logo URL for {name}'s Valentine card (jpg/png). "
         "You can host your image here: https://host-image-puce.vercel.app/\n"
         "Type 'none' if you don't want to add a logo.",
         parse_mode="Markdown"
@@ -230,7 +229,8 @@ def ask_valentine_from(message, name, callsign, since_date, relationship, logo_u
 
 def generate_valentine_html(message, name, callsign, since_date, relationship, logo_url, msg_text):
     sender_name = message.text.strip()
-    
+
+   
     from datetime import datetime
     since = datetime.strptime(since_date, "%Y-%m-%d")
     years = datetime.now().year - since.year - ((datetime.now().month, datetime.now().day) < (since.month, since.day))
@@ -293,7 +293,7 @@ p.info {{ margin:10px 0; font-size: clamp(20px,3vw,60px); }}
 </head>
 <body>
 <div class="container">
-    {'<img class="img" src="'+logo_url+'" alt="Logo">' if logo_url else ''}
+    {'<img src="'+logo_url+'" alt="Logo" class="img" loading="lazy">' if logo_url else ''}
     <h1>❤️ Happy Valentine's, {name}!</h1>
     <p class="info">Callsign: {callsign}</p>
     <p class="info">Relationship: {relationship}</p>
@@ -304,7 +304,8 @@ p.info {{ margin:10px 0; font-size: clamp(20px,3vw,60px); }}
 </body>
 </html>
 """
-    send_html_file(message.chat.id, html_code, f"Valentine_{name}")
+
+send_html_file(message.chat.id, html_code, f"Valentine_{name}")
 
 # --- SURPRISE FLOW ---
 def ask_surprise_name(message):
