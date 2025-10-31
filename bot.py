@@ -231,10 +231,10 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
     font-size: clamp(20px, 4vw, 80px);
     word-wrap: break-word;
 }}
-.from {{
+.from {
     font-style: italic;
-    font-size: clamp(22px, 3vw, 60px);
-}}
+    font-size: clamp(24px, 6vw, 100px);
+}
 </style>
 </head>
 <body>
@@ -314,10 +314,10 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
     font-size: clamp(20px, 4vw, 80px);
     word-wrap: break-word;
 }}
-.from {{
+.from {
     font-style: italic;
-    font-size: clamp(22px, 3vw, 60px);
-}}
+    font-size: clamp(24px, 6vw, 100px);
+        }
 </style>
 </head>
 <body>
@@ -397,10 +397,10 @@ img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5p
     font-size: clamp(20px, 4vw, 80px);
     word-wrap: break-word;
 }}
-.from {{
+.from {
     font-style: italic;
-    font-size: clamp(22px, 3vw, 60px);
-}}
+    font-size: clamp(24px, 6vw, 100px);
+    }
 </style>
 </head>
 <body>
