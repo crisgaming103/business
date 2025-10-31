@@ -275,56 +275,57 @@ def generate_graduation_html(message, name, grad_date, image_url, relation, send
 <meta charset='UTF-8'>
 <title>🎓 {name}'s Graduation!</title>
 <style>
-body {
+body {{
     font-family: 'Comic Sans MS', cursive, sans-serif;
     background: url('https://i.ibb.co/rfvTqWgR/images-3.jpg') no-repeat center center fixed;
     background-size: cover;
     display: flex; justify-content: center; align-items: center;
-    height: 100vh; margin: 0;
-}
+    min-height: 100vh; margin: 0;
+}}
 
-.container {
+.container {{
     background: rgba(255,255,255,0.85);
-    padding: 50px 30px;          /* reduced padding */
+    padding: 40px 30px;
     border-radius: 20px;
     text-align: center;
-    max-width: 800px;             /* wider container */
+    max-width: 800px;
     width: 90%;
     border: 5px solid;
     border-image: linear-gradient(45deg, red, green, blue) 1;
-}
+}}
 
-img { 
-    width: 180px; 
-    height: 180px; 
-    border-radius: 50%; 
-    object-fit: cover; 
-    border: 5px solid #00aaff; 
-    margin-bottom: 20px; 
-}
-
-h1 {
-    font-size: 6vw;               
+img {{
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #00aaff;
     margin-bottom: 20px;
-}
+}}
 
-.details { 
-    margin-bottom: 20px; 
-    font-size: 3vw;               
-}
+h1 {{
+    font-size: clamp(24px, 6vw, 100px);
+    margin-bottom: 20px;
+}}
 
-.message-box { 
-    background: #d1f0ff; 
-    padding: 30px 20px;  
-    border-radius: 15px; 
-    margin-bottom: 20px; 
-    font-size: 4vw;               
-}
+.details {{
+    margin-bottom: 20px;
+    font-size: clamp(18px, 3vw, 60px);
+}}
 
-.from { 
-    font-style: italic; 
-    font-size: 3vw;               
-}
+.message-box {{
+    background: #d1f0ff;
+    padding: 30px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    font-size: clamp(20px, 4vw, 80px);
+    word-wrap: break-word;
+}}
+
+.from {{
+    font-style: italic;
+    font-size: clamp(18px, 3vw, 60px);
+}}
 </style>
 </head>
 <body>
@@ -341,7 +342,8 @@ h1 {
     <p class="from">From: {sender_name} ({relation})</p>
 </div>
 </body>
-</html>
+</html>"""
+    send_html_file(message.chat.id, html_code, name)
 
 
 # --- Wedding Flow ---
