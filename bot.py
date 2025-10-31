@@ -141,7 +141,7 @@ def choose_celebration(message):
         return
 
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    markup.add("Birthday", "Graduation", "Wedding", "Surprise 🎁")
+    markup.add("Birthday", "Graduation", "Wedding", "Surprise 🎁","Valentine's Day ❤️")
     sent = bot.send_message(message.chat.id, "🎉 Choose the celebration type:", reply_markup=markup)
     schedule_delete(message.chat.id, sent.message_id)
     bot.register_next_step_handler(sent, ask_details_by_type)
@@ -164,10 +164,148 @@ def ask_details_by_type(message):
     elif celebration_type in ["surprise 🎁", "surprise"]:
         sent = bot.send_message(message.chat.id, "🎉 Let's make a Surprise card! First, enter the *recipient's name*:", parse_mode="Markdown")
         bot.register_next_step_handler(sent, ask_surprise_name)
+        
+    elif celebration_type in ["valentine's day ❤️", "valentine's day"]:
+        sent = bot.send_message(message.chat.id, "❤️ Enter the *name* of your Valentine:", parse_mode="Markdown")
+        bot.register_next_step_handler(sent, ask_valentine_name)
 
     else:
         sent = bot.send_message(message.chat.id, "❌ Invalid choice. Please type /html to try again.")
         schedule_delete(message.chat.id, sent.message_id)
+        
+        # --- VALENTINE'S FLOW ---
+def ask_valentine_name(message):
+    sent = bot.send_message(message.chat.id, "❤️ Enter your lover's name:", parse_mode="Markdown")
+    bot.register_next_step_handler(sent, ask_valentine_callsign)
+
+def ask_valentine_callsign(message):
+    name = message.text.strip()
+    sent = bot.send_message(
+        message.chat.id,
+        f"💌 Enter their *callsign/nickname*:",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_valentine_since, name)
+
+def ask_valentine_since(message, name):
+    callsign = message.text.strip()
+    sent = bot.send_message(
+        message.chat.id,
+        "📅 Enter the date you became a couple (YYYY-MM-DD):",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_valentine_relationship, name, callsign)
+
+def ask_valentine_relationship(message, name, callsign):
+    since_date = message.text.strip()
+    sent = bot.send_message(
+        message.chat.id,
+        "💞 Enter your relationship type (e.g., couple, lovebirds):",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_valentine_logo, name, callsign, since_date)
+
+def ask_valentine_logo(message, name, callsign, since_date, relationship):
+    sent = bot.send_message(
+        message.chat.id,
+        f"📸 Upload or send the image/logo URL for {name}'s Valentine card (jpg/png). "
+        "You can host your image here: https://host-image-puce.vercel.app/\n"
+        "Type 'none' if you don't want to add a logo.",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, ask_valentine_message, name, callsign, since_date, relationship)
+
+def ask_valentine_message(message, name, callsign, since_date, relationship):
+    logo_url = message.text.strip()
+    if logo_url.lower() == "none":
+        logo_url = ""
+    sent = bot.send_message(message.chat.id, "✉️ Enter your personal message:", parse_mode="Markdown")
+    bot.register_next_step_handler(sent, ask_valentine_from, name, callsign, since_date, relationship, logo_url)
+
+def ask_valentine_from(message, name, callsign, since_date, relationship, logo_url):
+    msg_text = message.text.strip()
+    sent = bot.send_message(message.chat.id, "📝 Who is sending this card?", parse_mode="Markdown")
+    bot.register_next_step_handler(sent, generate_valentine_html, name, callsign, since_date, relationship, logo_url, msg_text)
+
+def generate_valentine_html(message, name, callsign, since_date, relationship, logo_url, msg_text):
+    sender_name = message.text.strip()
+
+   
+    from datetime import datetime
+    since = datetime.strptime(since_date, "%Y-%m-%d")
+    years = datetime.now().year - since.year - ((datetime.now().month, datetime.now().day) < (since.month, since.day))
+
+    background_url = "https://i.ibb.co/Z66JFKBj/images-4.jpg"
+
+    html_code = f"""<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<title>Happy Valentine's {name}!</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@keyframes rainbow {{
+    0% {{ background-position: 0% 50%; }}
+    50% {{ background-position: 100% 50%; }}
+    100% {{ background-position: 0% 50%; }}
+}}
+body {{
+    font-family: 'Dancing Script', cursive;
+    background: url('{background_url}') no-repeat center center fixed;
+    background-size: cover;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; margin: 0;
+}}
+.container {{
+    background: rgba(255,255,255,0.85);
+    padding: 50px 30px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 800px;
+    width: 90%;
+    border: 5px solid;
+    border-image: linear-gradient(45deg, red, pink, purple) 1;
+}}
+.img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
+h1 {{
+    font-size: clamp(24px, 6vw, 100px);
+    margin-bottom: 20px;
+    background: linear-gradient(270deg, red, pink, purple, violet);
+    background-size: 1400% 1400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 10s ease infinite;
+}}
+.message-box {{
+    background: #ffe4e1;
+    padding: 30px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    font-size: clamp(20px, 4vw, 80px);
+    word-wrap: break-word;
+}}
+.from {{
+    font-style: italic;
+    font-size: clamp(18px, 3vw, 60px);
+}}
+p.info {{ margin:10px 0; font-size: clamp(20px,3vw,60px); }}
+</style>
+</head>
+<body>
+<div class="container">
+    {'<img src="'+logo_url+'" alt="Logo">' if logo_url else ''}
+    <h1>❤️ Happy Valentine's, {name}!</h1>
+    <p class="info">Callsign: {callsign}</p>
+    <p class="info">Relationship: {relationship}</p>
+    <p class="info">Years Together: {years}</p>
+    <div class="message-box"><p>{msg_text}</p></div>
+    <p class="from">From: {sender_name}</p>
+</div>
+</body>
+</html>
+"""
+
+    send_html_file(message.chat.id, html_code, f"Valentine_{name}")
 
 # --- SURPRISE FLOW ---
 def ask_surprise_name(message):
@@ -228,7 +366,7 @@ body {{
     border: 5px solid;
     border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
-img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
+.img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
 h1 {{
     font-size: clamp(24px, 6vw, 100px);
     margin-bottom: 20px;
