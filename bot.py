@@ -203,9 +203,10 @@ def ask_valentine_relationship(message, name, callsign):
         "💞 Enter your relationship type (e.g., couple, lovebirds):",
         parse_mode="Markdown"
     )
-    bot.register_next_step_handler(sent, ask_valentine_logo, name, callsign, since_date)
+    bot.register_next_step_handler(sent, get_relationship_type, name, callsign, since_date)
 
-def ask_valentine_logo(message, name, callsign, since_date, relationship):
+def get_relationship_type(message, name, callsign, since_date):
+    relationship = message.text.strip()
     sent = bot.send_message(
         message.chat.id,
         f"📸 Upload or send the image/logo URL for {name}'s Valentine card (jpg/png). "
