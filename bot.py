@@ -114,58 +114,6 @@ def start(message):
         reply_markup=markup
     )
 
-# ──────────────────────────────────────────────
-# 📢 MANAGE POST COMMAND (Owner only)
-# ──────────────────────────────────────────────
-@bot.message_handler(commands=['manage_post'])
-def manage_post(message):
-    if message.chat.id != OWNER_ID:
-        bot.reply_to(message, "❌ Only the owner can use this command.")
-        return
-
-    sent = bot.send_message(
-        message.chat.id,
-        "📝 Send your post text (you can send multiple posts). Type /done when finished."
-    )
-    bot.register_next_step_handler(sent, collect_posts)
-
-def collect_posts(message):
-    if message.text == "/done":
-        bot.send_message(message.chat.id, "✅ Done! Use /command to post them.")
-        return
-
-    post_id = len(posts) + 1
-    posts[post_id] = message.text
-    bot.send_message(message.chat.id, f"📌 Saved Post #{post_id}:\n\n{message.text}")
-    sent = bot.send_message(message.chat.id, "Send another post or type /done to finish:")
-    bot.register_next_step_handler(sent, collect_posts)
-
-# ──────────────────────────────────────────────
-# 💬 COMMAND — Anyone can use
-# ──────────────────────────────────────────────
-@bot.message_handler(commands=['command'])
-def show_commands(message):
-    if not posts:
-        bot.reply_to(message, "⚠️ No posts have been added yet.")
-        return
-
-    for post_id, text in posts.items():
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("📋 Copy", callback_data=f"copy_{post_id}"))
-        bot.send_message(message.chat.id, f"🗒️ *Post #{post_id}:*\n\n{text}", parse_mode="Markdown", reply_markup=markup)
-
-# ──────────────────────────────────────────────
-# 📋 HANDLE COPY BUTTON
-# ──────────────────────────────────────────────
-@bot.callback_query_handler(func=lambda call: call.data.startswith("copy_"))
-def copy_post(call):
-    post_id = int(call.data.split("_")[1])
-    text = posts.get(post_id, "⚠️ Post not found.")
-
-    # Telegram shows “Copied” when you send an alert=True callback
-    bot.answer_callback_query(call.id, text="✅ Copied to clipboard!", show_alert=True)
-    bot.send_message(call.message.chat.id, f"📋 *Copied Post #{post_id}:*\n\n{text}", parse_mode="Markdown")
-
 # ===================== #
 #       MENU COMMAND
 # ===================== #
