@@ -203,51 +203,80 @@ def generate_birthday_html(message, name, birthdate, age, relation, sender_name,
     msg_text = message.text.strip()
     html_code = f"""<!DOCTYPE html>
 <html lang='en'>
-<head><meta charset='UTF-8'><title>🎉 {name}'s Birthday!</title>
+<head>
+<meta charset='UTF-8'>
+<title>🎉 {name}'s Birthday!</title>
+<!-- Google Cursive Font -->
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body {{
-       font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'Dancing Script', cursive;
     background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed;
     background-size: cover;
-    display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; margin: 0;
 }}
+
 .container {{
     background: rgba(255,255,255,0.85);
-    padding: 40px 30px;
+    padding: 50px 30px;       
     border-radius: 20px;
     text-align: center;
-    max-width: 800px;
+    max-width: 800px;         
     width: 90%;
     border: 5px solid;
     border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
-img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff69b4; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:40px; }}
+
+img {{
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #ff69b4;
+    margin-bottom: 20px;
+}}
+
+h1 {{
+    font-size: clamp(24px, 6vw, 100px);
+    margin-bottom: 20px;
+}}
+
+.details {{
+    margin-bottom: 20px;
+    font-size: clamp(18px, 3vw, 60px);
+}}
+
 .message-box {{
-    background: #d1f0ff;
+    background: #ffe4e1;
     padding: 30px 20px;
     border-radius: 15px;
     margin-bottom: 20px;
     font-size: clamp(20px, 4vw, 80px);
     word-wrap: break-word;
 }}
+
 .from {{
     font-style: italic;
-    font-size: clamp(20px, 3vw, 60px);
+    font-size: clamp(18px, 3vw, 60px);
 }}
 </style>
 </head>
 <body>
 <div class="container">
-<img src="{image_url}" alt="{name}" loading="lazy">
-<h1>🎉 Happy Birthday, {name}!</h1>
-<div class="details">
-<p>For: {name}</p><p>Birthdate: {birthdate}</p><p>Age Turning: {age}</p><p>Relation: {relation}</p>
+    <img src="{image_url}" alt="{name}" loading="lazy">
+    <h1>🎉 Happy Birthday, {name}!</h1>
+    <div class="details">
+        <p>For: {name}</p>
+        <p>Birthdate: {birthdate}</p>
+        <p>Age Turning: {age}</p>
+        <p>Relation: {relation}</p>
+    </div>
+    <div class="message-box"><p>{msg_text}</p></div>
+    <p class="from">From: {sender_name} ({relation})</p>
 </div>
-<div class="message-box"><p>{msg_text}</p></div>
-<p>From: {sender_name} ({relation})</p>
-</div>
-</body></html>"""
+</body>
+</html>"""
     send_html_file(message.chat.id, html_code, name)
 
 
@@ -281,7 +310,7 @@ def ask_graduation_message(message, name, grad_date, relation, sender_name):
     image_url = message.text.strip()
     sent = bot.send_message(message.chat.id, f"💌 Enter your congratulatory message for {name}:", parse_mode="Markdown")
     bot.register_next_step_handler(sent, generate_graduation_html, name, grad_date, image_url, relation, sender_name)
-
+    
 def generate_graduation_html(message, name, grad_date, image_url, relation, sender_name):
     msg_text = message.text.strip()
     html_code = f"""<!DOCTYPE html>
@@ -289,9 +318,11 @@ def generate_graduation_html(message, name, grad_date, image_url, relation, send
 <head>
 <meta charset='UTF-8'>
 <title>🎓 {name}'s Graduation!</title>
+<!-- Google Cursive Font -->
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body {{
-           font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'Dancing Script', cursive;
     background: url('https://i.ibb.co/rfvTqWgR/images-3.jpg') no-repeat center center fixed;
     background-size: cover;
     display: flex; justify-content: center; align-items: center;
@@ -300,7 +331,7 @@ body {{
 
 .container {{
     background: rgba(255,255,255,0.85);
-    padding: 40px 30px;
+    padding: 50px 30px;         
     border-radius: 20px;
     text-align: center;
     max-width: 800px;
@@ -325,7 +356,7 @@ h1 {{
 
 .details {{
     margin-bottom: 20px;
-    font-size: clamp(20px, 3vw, 60px);
+    font-size: clamp(18px, 3vw, 60px);
 }}
 
 .message-box {{
@@ -339,7 +370,7 @@ h1 {{
 
 .from {{
     font-style: italic;
-    font-size: clamp(20px, 3vw, 60px);
+    font-size: clamp(18px, 3vw, 60px);
 }}
 </style>
 </head>
@@ -351,9 +382,7 @@ h1 {{
         <p>Graduate: {name}</p>
         <p>Graduation Date: {grad_date}</p>
     </div>
-    <div class="message-box">
-        <p>{msg_text}</p>
-    </div>
+    <div class="message-box"><p>{msg_text}</p></div>
     <p class="from">From: {sender_name} ({relation})</p>
 </div>
 </body>
@@ -396,51 +425,78 @@ def generate_wedding_html(message, couple_name, wedding_date, image_url, relatio
     msg_text = message.text.strip()
     html_code = f"""<!DOCTYPE html>
 <html lang='en'>
-<head><meta charset='UTF-8'><title>💍 {couple_name}'s Wedding!</title>
+<head>
+<meta charset='UTF-8'>
+<title>💍 {couple_name}'s Wedding!</title>
+<!-- Google Cursive Font -->
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body {{
-       font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'Dancing Script', cursive;
     background: url('https://i.ibb.co/BHpFv6Tq/images-2.jpg') no-repeat center center fixed;
     background-size: cover;
-    display: flex; justify-content:center; align-items:center; height:100vh; margin:0;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; margin: 0;
 }}
+
 .container {{
     background: rgba(255,255,255,0.85);
-    padding: 40px 30px;
+    padding: 50px 30px;      
     border-radius: 20px;
     text-align: center;
-    max-width: 800px;
+    max-width: 800px;         
     width: 90%;
     border: 5px solid;
     border-image: linear-gradient(45deg, red, green, blue) 1;
 }}
-img {{ width:180px; height:180px; border-radius:50%; object-fit:cover; border:5px solid #ff8800; margin-bottom:20px; }}
-.details {{ margin-bottom:20px; font-size:40px; }}
+
+img {{
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #ff8800;
+    margin-bottom: 20px;
+}}
+
+h1 {{
+    font-size: clamp(24px, 6vw, 100px);
+    margin-bottom: 20px;
+}}
+
+.details {{
+    margin-bottom: 20px;
+    font-size: clamp(18px, 3vw, 60px);
+}}
+
 .message-box {{
-    background: #d1f0ff;
+    background: #fff2cc;
     padding: 30px 20px;
     border-radius: 15px;
     margin-bottom: 20px;
     font-size: clamp(20px, 4vw, 80px);
     word-wrap: break-word;
 }}
+
 .from {{
     font-style: italic;
-    font-size: clamp(20px, 3vw, 60px);
+    font-size: clamp(18px, 3vw, 60px);
 }}
 </style>
 </head>
 <body>
 <div class="container">
-<img src="{image_url}" alt="{couple_name}" loading="lazy">
-<h1>💍 Happy Wedding Day, {couple_name}!</h1>
-<div class="details">
-<p>Couple: {couple_name}</p><p>Wedding Date: {wedding_date}</p>
+    <img src="{image_url}" alt="{couple_name}" loading="lazy">
+    <h1>💍 Happy Wedding Day, {couple_name}!</h1>
+    <div class="details">
+        <p>Couple: {couple_name}</p>
+        <p>Wedding Date: {wedding_date}</p>
+    </div>
+    <div class="message-box"><p>{msg_text}</p></div>
+    <p class="from">From: {sender_name} ({relation})</p>
 </div>
-<div class="message-box"><p>{msg_text}</p></div>
-<p>From: {sender_name} ({relation})</p>
-</div>
-</body></html>"""
+</body>
+</html>"""
     send_html_file(message.chat.id, html_code, couple_name)
 
 
