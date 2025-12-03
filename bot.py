@@ -117,14 +117,7 @@ def start(message):
 # ===================== #
 #       MENU COMMAND
 # ===================== #
-@bot.message_handler(commands=['menu'])
-@require_balance
-def menu(message):
-    user = message.from_user
-    if send_inline_menu(user.id, user.username, user.first_name):
-        send_and_auto_delete(message.chat.id, "✅ Menu sent! Check your private chat.")
-    else:
-        send_and_auto_delete(message.chat.id, "❌ You have no balance.")
+
         
     
 
@@ -790,105 +783,6 @@ def schedule_delete(chat_id, message_id):
 
 
     
-# ===================== #
-#     OTHER COMMANDS
-# ===================== #
-@bot.message_handler(commands=['balance'])
-def check_balance(message):
-    user = message.from_user
-    bal = user_balance.get(user.id, 0)
-    balance_text = "💎 Unlimited" if bal == float('inf') else f"💰 {bal:,}"  # adds commas for readability
-
-    text = (
-        "╔══════════════════════════╗\n"
-        "       👑 CRIS TOOL 👑\n"
-        "╚══════════════════════════╝\n\n"
-        f"👋 Hello, *{user.first_name}*!\n"
-        "✨ Welcome back to your [🇵🇭] Cris Game Dashboard.\n\n"
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        "📊 ACCOUNT STATUS\n"
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"👤 Name       : *{user.first_name}*\n"
-        f"🆔 ID         : `{user.id}`\n"
-        f"🛡aBalance:{balance_text}\n"
-        f"⚡ Status     : ✅ Access Confirmed\n\n"
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        "🔥 *CrisGame isn’t given, it’s taken.* 🔥\n"
-        "💡 Keep your credentials safe and enjoy your VIP privileges!\n"
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    )
-
-    send_and_auto_delete(message.chat.id, text, parse_mode="Markdown")
-
-# ===================== #
-#     BALANCE SYSTEM    #
-# ===================== #
-user_balance = {}
-
-@bot.message_handler(commands=['give'])
-def give_balance(message):
-    if message.from_user.id != OWNER_ID:
-        return send_and_auto_delete(message.chat.id, "🚫 Only the owner can give balance.")
-    if message.reply_to_message:
-        target_user = message.reply_to_message.from_user
-    else:
-        args = message.text.split()
-        if len(args) < 2 or not args[1].isdigit():
-            return send_and_auto_delete(message.chat.id, "⚠️ Usage: /give <user_id> or reply to a user")
-        target_user = type('User', (), {'id': int(args[1]), 'first_name': f'User {args[1]}'})()
-    user_balance[target_user.id] = float('inf')
-    send_and_auto_delete(message.chat.id, f"✅ {target_user.first_name} now has unlimited balance!")
-
-@bot.message_handler(commands=['balance'])
-def check_balance(message):
-    bal = user_balance.get(message.from_user.id, 0)
-    if bal == float('inf'):
-        send_and_auto_delete(message.chat.id, "💰 You have unlimited balance!")
-    else:
-        send_and_auto_delete(message.chat.id, f"💰 Your balance: {bal}")
-
-# ===================== #
-#   INLINE MENU (KEY)   #
-# ===================== #
-def send_inline_menu(user_id, username, name):
-    if user_balance.get(user_id, 0) <= 0:
-        return False
-
-    info_text = (
-        "👑 **Welcome to the Cris King Rank Portal** 👑\n"
-        "━━━━━━━━━━━━━━━━━━━━━━━\n"
-        "🎮 *Elite Access Credentials:*\n\n"
-        f"👤 **Name:** {name}\n"
-        f"💬 **Username:** @{username if username else 'N/A'}\n"
-        f"🆔 **User ID:** `{user_id}`\n"
-        f"🔑 **Access Key:** `{ACCESS_KEY}`\n\n"
-        "⚔️ *This key grants you verified entry into the exclusive* **King Rank Network**.\n"
-        "🔒 Keep your credentials confidential.\n\n"
-        "━━━━━━━━━━━━━━━━━━━━━━━\n"
-        "🏆 **About King Rank**\n"
-        "🔥 You’ve entered the elite circle of Cris players.\n"
-        "💠 *Privileges:*\n"
-        "• Early access to features\n"
-        "• Priority in-game tools\n"
-        "• Recognition among King Rank elites\n\n"
-        "🚀 Tap below to open your **King Rank Control Center**."
-    )
-
-    target_url = "https://business-ten-lac.vercel.app/"
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("👑 Open King Rank Portal", url=target_url))
-
-    msg = bot.send_message(user_id, info_text, parse_mode="Markdown", reply_markup=markup)
-    threading.Thread(target=auto_delete, args=(user_id, msg.message_id), daemon=True).start()
-    return True
-
-@bot.message_handler(commands=['menu'])
-def menu(message):
-    user = message.from_user
-    if send_inline_menu(user.id, user.username, user.first_name):
-        send_and_auto_delete(message.chat.id, "✅ Menu sent! Check your private chat.")
-    else:
-        send_and_auto_delete(message.chat.id, "❌ You have no balance.")
 
 # ===================== #
 #   ADMIN COMMANDS      #
